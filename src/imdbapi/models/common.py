@@ -59,7 +59,7 @@ class Rating(_CamelModel):
 class Metacritic(_CamelModel):
     """Metacritic critic score data."""
 
-    url: str
+    url: str | None = None
     score: int
     review_count: int
 

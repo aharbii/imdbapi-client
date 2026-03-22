@@ -178,7 +178,7 @@ class TitlesEndpoint(BaseEndpoint):
         BatchGetTitlesResponse
             Container with the requested title objects.
         """
-        raw = await self._get("/titles:batchGet", params={"titleIds[]": title_ids})
+        raw = await self._get("/titles:batchGet", params={"titleIds": title_ids})
         try:
             return BatchGetTitlesResponse.model_validate(raw)
         except ValidationError as exc:

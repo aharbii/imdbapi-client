@@ -40,6 +40,23 @@ class TitleType(StrEnum):
     VIDEO = "VIDEO"
     VIDEO_GAME = "VIDEO_GAME"
 
+    @classmethod
+    def _missing_(cls, value: object) -> TitleType | None:
+        """Accept camelCase variants returned by the live API."""
+        _CAMEL_MAP: dict[str, TitleType] = {
+            "movie": cls.MOVIE,
+            "tvSeries": cls.TV_SERIES,
+            "tvMiniSeries": cls.TV_MINI_SERIES,
+            "tvSpecial": cls.TV_SPECIAL,
+            "tvMovie": cls.TV_MOVIE,
+            "short": cls.SHORT,
+            "tvShort": cls.SHORT,
+            "video": cls.VIDEO,
+            "videoGame": cls.VIDEO_GAME,
+        }
+        if isinstance(value, str):
+            return _CAMEL_MAP.get(value)
+
 
 class SortBy(StrEnum):
     """Valid ``sortBy`` values for ``GET /titles``."""

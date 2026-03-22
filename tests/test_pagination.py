@@ -102,9 +102,7 @@ async def test_episodes_pages(client: IMDBAPIClient) -> None:
         "nextPageToken": "ep_cursor",
     }
     ep2: dict[str, Any] = {
-        "episodes": [
-            {"id": "tt9000002", "title": "Episode 2", "season": "1", "episodeNumber": 2}
-        ],
+        "episodes": [{"id": "tt9000002", "title": "Episode 2", "season": "1", "episodeNumber": 2}],
         "totalCount": 2,
         "nextPageToken": None,
     }

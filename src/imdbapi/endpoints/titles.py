@@ -330,9 +330,7 @@ class TitlesEndpoint(BaseEndpoint):
         -------
         ListTitleEpisodesResponse
         """
-        params = self._clean(
-            {"season": season, "pageSize": page_size, "pageToken": page_token}
-        )
+        params = self._clean({"season": season, "pageSize": page_size, "pageToken": page_token})
         raw = await self._get(f"/titles/{title_id}/episodes", params=params)
         try:
             return ListTitleEpisodesResponse.model_validate(raw)
@@ -378,9 +376,7 @@ class TitlesEndpoint(BaseEndpoint):
         -------
         ListTitleImagesResponse
         """
-        params = self._clean(
-            {"types[]": types, "pageSize": page_size, "pageToken": page_token}
-        )
+        params = self._clean({"types[]": types, "pageSize": page_size, "pageToken": page_token})
         raw = await self._get(f"/titles/{title_id}/images", params=params)
         try:
             return ListTitleImagesResponse.model_validate(raw)
@@ -412,9 +408,7 @@ class TitlesEndpoint(BaseEndpoint):
         -------
         ListTitleVideosResponse
         """
-        params = self._clean(
-            {"types[]": types, "pageSize": page_size, "pageToken": page_token}
-        )
+        params = self._clean({"types[]": types, "pageSize": page_size, "pageToken": page_token})
         raw = await self._get(f"/titles/{title_id}/videos", params=params)
         try:
             return ListTitleVideosResponse.model_validate(raw)

@@ -87,9 +87,7 @@ class _ListTitlesIn(BaseModel):
     max_aggregate_rating: float | None = Field(
         default=None, description="Maximum IMDb rating (0.0-10.0)"
     )
-    min_vote_count: int | None = Field(
-        default=None, description="Minimum number of user votes"
-    )
+    min_vote_count: int | None = Field(default=None, description="Minimum number of user votes")
     sort_by: str | None = Field(
         default=None,
         description=(
@@ -97,9 +95,7 @@ class _ListTitlesIn(BaseModel):
             "SORT_BY_USER_RATING, SORT_BY_USER_RATING_COUNT, SORT_BY_YEAR"
         ),
     )
-    sort_order: str | None = Field(
-        default=None, description="Sort direction: ASC or DESC"
-    )
+    sort_order: str | None = Field(default=None, description="Sort direction: ASC or DESC")
 
 
 class _GetTitleCreditsIn(BaseModel):
@@ -113,9 +109,7 @@ class _GetTitleCreditsIn(BaseModel):
 
 class _GetTitleEpisodesIn(BaseModel):
     title_id: str = Field(description="IMDb title ID of the TV series (e.g. 'tt0903747')")
-    season: str | None = Field(
-        default=None, description="Filter by season number string, e.g. '1'"
-    )
+    season: str | None = Field(default=None, description="Filter by season number string, e.g. '1'")
     page_size: int | None = Field(default=20, ge=1, le=50, description="Results per page")
 
 
@@ -409,9 +403,7 @@ class GetTitleCreditsTool(BaseTool):
                 }
                 for c in result.credits
             ]
-            return json.dumps(
-                {"credits": credits, "totalCount": result.total_count}, default=str
-            )
+            return json.dumps({"credits": credits, "totalCount": result.total_count}, default=str)
         except IMDBAPIError as exc:
             return _error(exc)
 
@@ -471,9 +463,7 @@ class GetTitleEpisodesTool(BaseTool):
                 }
                 for ep in result.episodes
             ]
-            return json.dumps(
-                {"episodes": episodes, "totalCount": result.total_count}, default=str
-            )
+            return json.dumps({"episodes": episodes, "totalCount": result.total_count}, default=str)
         except IMDBAPIError as exc:
             return _error(exc)
 
@@ -572,9 +562,7 @@ class GetTitleAwardsTool(BaseTool):
             JSON string with nomination stats and individual records.
         """
         try:
-            result = await self.client.titles.get_award_nominations(
-                title_id, page_size=page_size
-            )
+            result = await self.client.titles.get_award_nominations(title_id, page_size=page_size)
             nominations = [
                 {
                     "event": n.event.name if n.event else None,
@@ -644,9 +632,7 @@ class GetNameTool(BaseTool):
                     "deathDate": p.death_date.model_dump() if p.death_date else None,
                     "deathLocation": p.death_location,
                     "deathReason": p.death_reason,
-                    "starMeterRank": (
-                        p.meter_ranking.current_rank if p.meter_ranking else None
-                    ),
+                    "starMeterRank": (p.meter_ranking.current_rank if p.meter_ranking else None),
                 },
                 default=str,
             )
@@ -708,9 +694,7 @@ class GetNameFilmographyTool(BaseTool):
                 }
                 for c in result.credits
             ]
-            return json.dumps(
-                {"credits": credits, "totalCount": result.total_count}, default=str
-            )
+            return json.dumps({"credits": credits, "totalCount": result.total_count}, default=str)
         except IMDBAPIError as exc:
             return _error(exc)
 

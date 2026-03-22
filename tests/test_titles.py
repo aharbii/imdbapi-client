@@ -64,9 +64,7 @@ def title_payload() -> dict[str, Any]:
 @pytest.mark.asyncio
 async def test_get_title(client: IMDBAPIClient, title_payload: dict[str, Any]) -> None:
     with respx.mock(base_url=BASE_URL) as mock:
-        mock.get(f"/titles/{TITLE_ID}").mock(
-            return_value=httpx.Response(200, json=title_payload)
-        )
+        mock.get(f"/titles/{TITLE_ID}").mock(return_value=httpx.Response(200, json=title_payload))
         title = await client.titles.get(TITLE_ID)
     assert isinstance(title, Title)
     assert title.id == TITLE_ID
@@ -121,7 +119,9 @@ async def test_list_titles(client: IMDBAPIClient, title_payload: dict[str, Any])
 
 
 @pytest.mark.asyncio
-async def test_list_titles_with_pagination(client: IMDBAPIClient, title_payload: dict[str, Any]) -> None:
+async def test_list_titles_with_pagination(
+    client: IMDBAPIClient, title_payload: dict[str, Any]
+) -> None:
     response_payload = {
         "titles": [title_payload],
         "totalCount": 100,
@@ -168,9 +168,7 @@ async def test_get_credits(client: IMDBAPIClient) -> None:
         "nextPageToken": None,
     }
     with respx.mock(base_url=BASE_URL) as mock:
-        mock.get(f"/titles/{TITLE_ID}/credits").mock(
-            return_value=httpx.Response(200, json=payload)
-        )
+        mock.get(f"/titles/{TITLE_ID}/credits").mock(return_value=httpx.Response(200, json=payload))
         result = await client.titles.get_credits(TITLE_ID)
     assert isinstance(result, ListTitleCreditsResponse)
     assert result.credits[0].category == "actor"
@@ -224,9 +222,7 @@ async def test_get_akas(client: IMDBAPIClient) -> None:
         ]
     }
     with respx.mock(base_url=BASE_URL) as mock:
-        mock.get(f"/titles/{TITLE_ID}/akas").mock(
-            return_value=httpx.Response(200, json=payload)
-        )
+        mock.get(f"/titles/{TITLE_ID}/akas").mock(return_value=httpx.Response(200, json=payload))
         result = await client.titles.get_akas(TITLE_ID)
     assert isinstance(result, ListTitleAKAsResponse)
     assert result.akas[0].text == "Die Verurteilten"
@@ -241,9 +237,7 @@ async def test_get_akas(client: IMDBAPIClient) -> None:
 async def test_get_seasons(client: IMDBAPIClient) -> None:
     payload = {"seasons": [{"season": "1", "episodeCount": 10}]}
     with respx.mock(base_url=BASE_URL) as mock:
-        mock.get(f"/titles/{TITLE_ID}/seasons").mock(
-            return_value=httpx.Response(200, json=payload)
-        )
+        mock.get(f"/titles/{TITLE_ID}/seasons").mock(return_value=httpx.Response(200, json=payload))
         result = await client.titles.get_seasons(TITLE_ID)
     assert isinstance(result, ListTitleSeasonsResponse)
     assert result.seasons[0].episode_count == 10
@@ -288,9 +282,7 @@ async def test_get_images(client: IMDBAPIClient) -> None:
         "nextPageToken": None,
     }
     with respx.mock(base_url=BASE_URL) as mock:
-        mock.get(f"/titles/{TITLE_ID}/images").mock(
-            return_value=httpx.Response(200, json=payload)
-        )
+        mock.get(f"/titles/{TITLE_ID}/images").mock(return_value=httpx.Response(200, json=payload))
         result = await client.titles.get_images(TITLE_ID)
     assert isinstance(result, ListTitleImagesResponse)
     assert result.images[0].type == "poster"
@@ -311,9 +303,7 @@ async def test_get_videos(client: IMDBAPIClient) -> None:
         "nextPageToken": None,
     }
     with respx.mock(base_url=BASE_URL) as mock:
-        mock.get(f"/titles/{TITLE_ID}/videos").mock(
-            return_value=httpx.Response(200, json=payload)
-        )
+        mock.get(f"/titles/{TITLE_ID}/videos").mock(return_value=httpx.Response(200, json=payload))
         result = await client.titles.get_videos(TITLE_ID)
     assert isinstance(result, ListTitleVideosResponse)
     assert result.videos[0].name == "Official Trailer"

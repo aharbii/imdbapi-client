@@ -65,9 +65,7 @@ async def test_400_raises_bad_request(client: IMDBAPIClient) -> None:
 @pytest.mark.asyncio
 async def test_429_raises_rate_limit(client: IMDBAPIClient) -> None:
     with respx.mock(base_url=BASE_URL) as mock:
-        mock.get("/titles").mock(
-            return_value=httpx.Response(429, json={"message": "rate limited"})
-        )
+        mock.get("/titles").mock(return_value=httpx.Response(429, json={"message": "rate limited"}))
         with pytest.raises(IMDBAPIRateLimitError):
             await client._request("GET", "/titles")
 
@@ -98,9 +96,7 @@ async def test_timeout_raises_timeout_error(client: IMDBAPIClient) -> None:
 @pytest.mark.asyncio
 async def test_connect_error_raises_connection_error(client: IMDBAPIClient) -> None:
     with respx.mock(base_url=BASE_URL) as mock:
-        mock.get("/titles/tt0111161").mock(
-            side_effect=httpx.ConnectError("connection refused")
-        )
+        mock.get("/titles/tt0111161").mock(side_effect=httpx.ConnectError("connection refused"))
         with pytest.raises(IMDBAPIConnectionError):
             await client._request("GET", "/titles/tt0111161")
 
@@ -113,9 +109,7 @@ async def test_connect_error_raises_connection_error(client: IMDBAPIClient) -> N
 @pytest.mark.asyncio
 async def test_non_json_error_body(client: IMDBAPIClient) -> None:
     with respx.mock(base_url=BASE_URL) as mock:
-        mock.get("/titles/bad").mock(
-            return_value=httpx.Response(500, content=b"plain text error")
-        )
+        mock.get("/titles/bad").mock(return_value=httpx.Response(500, content=b"plain text error"))
         with pytest.raises(IMDBAPIServerError) as exc_info:
             await client._request("GET", "/titles/bad")
     assert "plain text error" in exc_info.value.message

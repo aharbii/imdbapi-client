@@ -233,8 +233,7 @@ def make_anthropic_agent(
         from langchain_anthropic import ChatAnthropic
     except ImportError as exc:
         raise ImportError(
-            "langchain-anthropic is required. "
-            "Install it with: uv sync --group agents-anthropic"
+            "langchain-anthropic is required. Install it with: uv sync --group agents-anthropic"
         ) from exc
 
     llm = ChatAnthropic(model=model)
@@ -265,8 +264,7 @@ def make_openai_agent(
         from langchain_openai import ChatOpenAI
     except ImportError as exc:
         raise ImportError(
-            "langchain-openai is required. "
-            "Install it with: uv sync --group agents-openai"
+            "langchain-openai is required. Install it with: uv sync --group agents-openai"
         ) from exc
 
     llm = ChatOpenAI(model=model)

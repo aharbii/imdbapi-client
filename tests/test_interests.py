@@ -50,9 +50,7 @@ async def test_list_interest_categories(client: IMDBAPIClient) -> None:
 @pytest.mark.asyncio
 async def test_list_interest_categories_empty(client: IMDBAPIClient) -> None:
     with respx.mock(base_url=BASE_URL) as mock:
-        mock.get("/interests").mock(
-            return_value=httpx.Response(200, json={"categories": []})
-        )
+        mock.get("/interests").mock(return_value=httpx.Response(200, json={"categories": []}))
         result = await client.interests.list_categories()
     assert result.categories == []
 

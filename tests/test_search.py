@@ -58,9 +58,7 @@ async def test_search_titles(client: IMDBAPIClient, title_payload: dict[str, Any
 @pytest.mark.asyncio
 async def test_search_titles_empty(client: IMDBAPIClient) -> None:
     with respx.mock(base_url=BASE_URL) as mock:
-        mock.get("/search/titles").mock(
-            return_value=httpx.Response(200, json={"titles": []})
-        )
+        mock.get("/search/titles").mock(return_value=httpx.Response(200, json={"titles": []}))
         result = await client.search.titles("xyznonexistent")
     assert result.titles == []
 
@@ -111,9 +109,7 @@ async def test_starmeter_with_page_token(client: IMDBAPIClient) -> None:
         "nextPageToken": None,
     }
     with respx.mock(base_url=BASE_URL) as mock:
-        route = mock.get("/chart/starmeter").mock(
-            return_value=httpx.Response(200, json=payload)
-        )
+        route = mock.get("/chart/starmeter").mock(return_value=httpx.Response(200, json=payload))
         result = await client.charts.starmeter(page_token="cursor_xyz")
     assert isinstance(result, ListStarMetersResponse)
     assert route.called

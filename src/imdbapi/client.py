@@ -245,17 +245,11 @@ class IMDBAPIClient:
         try:
             response = await self._http.request(method, path, params=params)
         except httpx.TimeoutException as exc:
-            raise IMDBAPITimeoutError(
-                f"Request timed out: {method} {path}"
-            ) from exc
+            raise IMDBAPITimeoutError(f"Request timed out: {method} {path}") from exc
         except httpx.ConnectError as exc:
-            raise IMDBAPIConnectionError(
-                f"Connection error: {method} {path} — {exc}"
-            ) from exc
+            raise IMDBAPIConnectionError(f"Connection error: {method} {path} — {exc}") from exc
         except httpx.HTTPError as exc:
-            raise IMDBAPIConnectionError(
-                f"HTTP transport error: {method} {path} — {exc}"
-            ) from exc
+            raise IMDBAPIConnectionError(f"HTTP transport error: {method} {path} — {exc}") from exc
 
         self._logger.debug(
             "← %s %s → HTTP %d (%d bytes)",

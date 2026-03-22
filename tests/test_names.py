@@ -53,9 +53,7 @@ def name_payload() -> dict[str, Any]:
 @pytest.mark.asyncio
 async def test_get_name(client: IMDBAPIClient, name_payload: dict[str, Any]) -> None:
     with respx.mock(base_url=BASE_URL) as mock:
-        mock.get(f"/names/{NAME_ID}").mock(
-            return_value=httpx.Response(200, json=name_payload)
-        )
+        mock.get(f"/names/{NAME_ID}").mock(return_value=httpx.Response(200, json=name_payload))
         person = await client.names.get(NAME_ID)
     assert isinstance(person, Name)
     assert person.id == NAME_ID
@@ -108,9 +106,7 @@ async def test_get_name_images(client: IMDBAPIClient) -> None:
         "nextPageToken": None,
     }
     with respx.mock(base_url=BASE_URL) as mock:
-        mock.get(f"/names/{NAME_ID}/images").mock(
-            return_value=httpx.Response(200, json=payload)
-        )
+        mock.get(f"/names/{NAME_ID}/images").mock(return_value=httpx.Response(200, json=payload))
         result = await client.names.get_images(NAME_ID)
     assert isinstance(result, ListNameImagesResponse)
     assert result.total_count == 1
@@ -193,9 +189,7 @@ async def test_get_trivia(client: IMDBAPIClient) -> None:
         "nextPageToken": None,
     }
     with respx.mock(base_url=BASE_URL) as mock:
-        mock.get(f"/names/{NAME_ID}/trivia").mock(
-            return_value=httpx.Response(200, json=payload)
-        )
+        mock.get(f"/names/{NAME_ID}/trivia").mock(return_value=httpx.Response(200, json=payload))
         result = await client.names.get_trivia(NAME_ID)
     assert isinstance(result, ListNameTriviaResponse)
     assert result.trivia_entries[0].interest_count == 42

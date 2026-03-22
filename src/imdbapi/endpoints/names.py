@@ -94,9 +94,7 @@ class NamesEndpoint(BaseEndpoint):
         -------
         ListNameImagesResponse
         """
-        params = self._clean(
-            {"types[]": types, "pageSize": page_size, "pageToken": page_token}
-        )
+        params = self._clean({"types[]": types, "pageSize": page_size, "pageToken": page_token})
         raw = await self._get(f"/names/{name_id}/images", params=params)
         try:
             return ListNameImagesResponse.model_validate(raw)

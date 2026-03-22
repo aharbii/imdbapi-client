@@ -162,10 +162,10 @@ def create_movie_agent(
     """
     # Lazy imports — these are optional dependencies
     try:
-        from langgraph.prebuilt import create_react_agent
+        from langchain.agents import create_agent
     except ImportError as exc:
         raise ImportError(
-            "langgraph is required. Install it with: uv sync --group agents-anthropic"
+            "langchain is required. Install it with: uv sync --group agents-anthropic"
         ) from exc
 
     if llm is None:
@@ -196,10 +196,10 @@ def create_movie_agent(
                 "langgraph.checkpoint.memory is required for in-memory checkpointing."
             ) from exc
 
-    return create_react_agent(
+    return create_agent(
         llm,
         tools,
-        state_modifier=MOVIE_AGENT_SYSTEM_PROMPT,
+        system_prompt=MOVIE_AGENT_SYSTEM_PROMPT,
         checkpointer=resolved_checkpointer,
     )
 

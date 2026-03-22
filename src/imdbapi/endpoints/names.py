@@ -63,7 +63,7 @@ class NamesEndpoint(BaseEndpoint):
         BatchGetNamesResponse
             Container with the requested person objects.
         """
-        raw = await self._get("/names:batchGet", params={"nameIds[]": name_ids})
+        raw = await self._get("/names:batchGet", params={"nameIds": name_ids})
         try:
             return BatchGetNamesResponse.model_validate(raw)
         except ValidationError as exc:
@@ -94,7 +94,7 @@ class NamesEndpoint(BaseEndpoint):
         -------
         ListNameImagesResponse
         """
-        params = self._clean({"types[]": types, "pageSize": page_size, "pageToken": page_token})
+        params = self._clean({"types": types, "pageSize": page_size, "pageToken": page_token})
         raw = await self._get(f"/names/{name_id}/images", params=params)
         try:
             return ListNameImagesResponse.model_validate(raw)
@@ -127,7 +127,7 @@ class NamesEndpoint(BaseEndpoint):
         ListNameFilmographyResponse
         """
         params = self._clean(
-            {"categories[]": categories, "pageSize": page_size, "pageToken": page_token}
+            {"categories": categories, "pageSize": page_size, "pageToken": page_token}
         )
         raw = await self._get(f"/names/{name_id}/filmography", params=params)
         try:

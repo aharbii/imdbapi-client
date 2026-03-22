@@ -30,12 +30,16 @@ from __future__ import annotations
 
 import asyncio
 
+from dotenv import load_dotenv
+
 from imdbapi import IMDBAPIClient
 from imdbapi.langchain import create_movie_agent
 from imdbapi.langchain.agent import make_openai_agent
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+load_dotenv()
 
 # ---------------------------------------------------------------------------
 # 1. One-shot query
@@ -104,7 +108,7 @@ async def demo_custom_tools() -> None:
     print("=" * 60)
 
     from langchain_anthropic import ChatAnthropic
-    from langgraph.prebuilt import create_react_agent
+    from langchain.agents import create_agent
 
     from imdbapi.langchain.agent import MOVIE_AGENT_SYSTEM_PROMPT
     from imdbapi.langchain.tools import (
@@ -125,10 +129,10 @@ async def demo_custom_tools() -> None:
             GetNameFilmographyTool(client=client),
         ]
 
-        agent = create_react_agent(
+        agent = create_agent(
             ChatAnthropic(model="claude-opus-4-6"),
             tools,
-            state_modifier=MOVIE_AGENT_SYSTEM_PROMPT,
+            system_prompt=MOVIE_AGENT_SYSTEM_PROMPT,
         )
 
         result = await agent.ainvoke(
@@ -209,13 +213,17 @@ async def main() -> None:
     # Demo 1 is always safe to run
     await demo_one_shot()
 
+    # DEMO 2 — Multi-turn conversation
+    await demo_multi_turn()
+
+    # DEMO 3 — Content-only agent (no box office / awards tools)
+    await demo_custom_tools()
+    
     # Demo 4 — streaming (comment out if you prefer clean output)
     await demo_streaming()
-
-    # Uncomment the demos you want:
-    # await demo_multi_turn()
-    # await demo_custom_tools()
-    # await demo_openai_agent()
+    
+    # DEMO 5 — OpenAI GPT-4o agent (skipped if no key)
+    await demo_openai_agent()
 
 
 if __name__ == "__main__":

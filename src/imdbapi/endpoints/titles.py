@@ -103,12 +103,12 @@ class TitlesEndpoint(BaseEndpoint):
         """
         params: dict[str, Any] = self._clean(
             {
-                "types[]": [t.value for t in types] if types else None,
-                "genres[]": genres,
-                "countryCodes[]": country_codes,
-                "languageCodes[]": language_codes,
-                "nameIds[]": name_ids,
-                "interestIds[]": interest_ids,
+                "types": [t.value for t in types] if types else None,
+                "genres": genres,
+                "countryCodes": country_codes,
+                "languageCodes": language_codes,
+                "nameIds": name_ids,
+                "interestIds": interest_ids,
                 "startYear": start_year,
                 "endYear": end_year,
                 "minVoteCount": min_vote_count,
@@ -215,7 +215,7 @@ class TitlesEndpoint(BaseEndpoint):
         """
         params = self._clean(
             {
-                "categories[]": categories,
+                "categories": categories,
                 "pageSize": page_size,
                 "pageToken": page_token,
             }
@@ -376,7 +376,7 @@ class TitlesEndpoint(BaseEndpoint):
         -------
         ListTitleImagesResponse
         """
-        params = self._clean({"types[]": types, "pageSize": page_size, "pageToken": page_token})
+        params = self._clean({"types": types, "pageSize": page_size, "pageToken": page_token})
         raw = await self._get(f"/titles/{title_id}/images", params=params)
         try:
             return ListTitleImagesResponse.model_validate(raw)
@@ -408,7 +408,7 @@ class TitlesEndpoint(BaseEndpoint):
         -------
         ListTitleVideosResponse
         """
-        params = self._clean({"types[]": types, "pageSize": page_size, "pageToken": page_token})
+        params = self._clean({"types": types, "pageSize": page_size, "pageToken": page_token})
         raw = await self._get(f"/titles/{title_id}/videos", params=params)
         try:
             return ListTitleVideosResponse.model_validate(raw)
@@ -506,7 +506,7 @@ class TitlesEndpoint(BaseEndpoint):
         ListTitleCompanyCreditsResponse
         """
         params = self._clean(
-            {"categories[]": categories, "pageSize": page_size, "pageToken": page_token}
+            {"categories": categories, "pageSize": page_size, "pageToken": page_token}
         )
         raw = await self._get(f"/titles/{title_id}/companyCredits", params=params)
         try:

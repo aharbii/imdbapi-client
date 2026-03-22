@@ -1,0 +1,17 @@
+# Python
+.venv
+__pycache__
+.mypy_cache
+.pytest_cache
+.ruff_cache
+.coverage
+
+# IDEs
+.vscode
+.claude
+
+# Secrets
+.env
+
+# Caches
+*.log

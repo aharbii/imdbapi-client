@@ -38,6 +38,9 @@ dev = [
     { include-group = "lint" },
     { include-group = "test" },
 ]
+
+[tool.uv]
+default-groups = []
 # AI agent integrations — install the LLM provider you use:
 #   uv sync --group agents-anthropic   (Claude)
 #   uv sync --group agents-openai      (GPT)

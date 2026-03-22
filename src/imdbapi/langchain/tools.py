@@ -192,7 +192,7 @@ class SearchTitlesTool(BaseTool):
         except IMDBAPIError as exc:
             return _error(exc)
 
-    def _run(self, *args: Any, **kwargs: Any) -> str:  # type: ignore[override]
+    def _run(self, *args: Any, **kwargs: Any) -> str:
         raise NotImplementedError("Use the async interface: await tool.arun(...)")
 
 
@@ -261,7 +261,7 @@ class GetTitleTool(BaseTool):
         except IMDBAPIError as exc:
             return _error(exc)
 
-    def _run(self, *args: Any, **kwargs: Any) -> str:  # type: ignore[override]
+    def _run(self, *args: Any, **kwargs: Any) -> str:
         raise NotImplementedError("Use the async interface: await tool.arun(...)")
 
 
@@ -349,7 +349,7 @@ class ListTitlesTool(BaseTool):
         except IMDBAPIError as exc:
             return _error(exc)
 
-    def _run(self, *args: Any, **kwargs: Any) -> str:  # type: ignore[override]
+    def _run(self, *args: Any, **kwargs: Any) -> str:
         raise NotImplementedError("Use the async interface: await tool.arun(...)")
 
 
@@ -407,7 +407,7 @@ class GetTitleCreditsTool(BaseTool):
         except IMDBAPIError as exc:
             return _error(exc)
 
-    def _run(self, *args: Any, **kwargs: Any) -> str:  # type: ignore[override]
+    def _run(self, *args: Any, **kwargs: Any) -> str:
         raise NotImplementedError("Use the async interface: await tool.arun(...)")
 
 
@@ -467,7 +467,7 @@ class GetTitleEpisodesTool(BaseTool):
         except IMDBAPIError as exc:
             return _error(exc)
 
-    def _run(self, *args: Any, **kwargs: Any) -> str:  # type: ignore[override]
+    def _run(self, *args: Any, **kwargs: Any) -> str:
         raise NotImplementedError("Use the async interface: await tool.arun(...)")
 
 
@@ -527,7 +527,7 @@ class GetTitleBoxOfficeTool(BaseTool):
         except IMDBAPIError as exc:
             return _error(exc)
 
-    def _run(self, *args: Any, **kwargs: Any) -> str:  # type: ignore[override]
+    def _run(self, *args: Any, **kwargs: Any) -> str:
         raise NotImplementedError("Use the async interface: await tool.arun(...)")
 
 
@@ -584,7 +584,7 @@ class GetTitleAwardsTool(BaseTool):
         except IMDBAPIError as exc:
             return _error(exc)
 
-    def _run(self, *args: Any, **kwargs: Any) -> str:  # type: ignore[override]
+    def _run(self, *args: Any, **kwargs: Any) -> str:
         raise NotImplementedError("Use the async interface: await tool.arun(...)")
 
 
@@ -639,7 +639,7 @@ class GetNameTool(BaseTool):
         except IMDBAPIError as exc:
             return _error(exc)
 
-    def _run(self, *args: Any, **kwargs: Any) -> str:  # type: ignore[override]
+    def _run(self, *args: Any, **kwargs: Any) -> str:
         raise NotImplementedError("Use the async interface: await tool.arun(...)")
 
 
@@ -698,7 +698,7 @@ class GetNameFilmographyTool(BaseTool):
         except IMDBAPIError as exc:
             return _error(exc)
 
-    def _run(self, *args: Any, **kwargs: Any) -> str:  # type: ignore[override]
+    def _run(self, *args: Any, **kwargs: Any) -> str:
         raise NotImplementedError("Use the async interface: await tool.arun(...)")
 
 
@@ -716,7 +716,7 @@ class ListInterestCategoriesTool(BaseTool):
     args_schema: type[BaseModel] = BaseModel
     client: Any
 
-    async def _arun(self) -> str:  # type: ignore[override]
+    async def _arun(self) -> str:
         """List all interest categories.
 
         Returns
@@ -737,7 +737,7 @@ class ListInterestCategoriesTool(BaseTool):
         except IMDBAPIError as exc:
             return _error(exc)
 
-    def _run(self, *args: Any, **kwargs: Any) -> str:  # type: ignore[override]
+    def _run(self, *args: Any, **kwargs: Any) -> str:
         raise NotImplementedError("Use the async interface: await tool.arun(...)")
 
 
@@ -784,7 +784,7 @@ class GetInterestCategoryTool(BaseTool):
         except IMDBAPIError as exc:
             return _error(exc)
 
-    def _run(self, *args: Any, **kwargs: Any) -> str:  # type: ignore[override]
+    def _run(self, *args: Any, **kwargs: Any) -> str:
         raise NotImplementedError("Use the async interface: await tool.arun(...)")
 
 

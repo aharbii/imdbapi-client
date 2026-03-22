@@ -56,6 +56,7 @@ class TitleType(StrEnum):
         }
         if isinstance(value, str):
             return _CAMEL_MAP.get(value)
+        return None
 
 
 class SortBy(StrEnum):

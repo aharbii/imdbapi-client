@@ -145,7 +145,7 @@ def create_movie_agent(
         async with IMDBAPIClient() as client:
             agent = create_movie_agent(
                 client,
-                llm=ChatOpenAI(model="gpt-4o"),
+                llm=ChatOpenAI(model="gpt-5.4"),
             )
 
     With persistent memory (multi-turn)::
@@ -172,7 +172,7 @@ def create_movie_agent(
         try:
             from langchain_anthropic import ChatAnthropic
 
-            llm = ChatAnthropic(model=model_name)  # type: ignore[assignment]
+            llm = ChatAnthropic(model_name=model_name)
         except ImportError as exc:
             raise ImportError(
                 "langchain-anthropic is required when llm=None. "
@@ -236,13 +236,13 @@ def make_anthropic_agent(
             "langchain-anthropic is required. Install it with: uv sync --group agents-anthropic"
         ) from exc
 
-    llm = ChatAnthropic(model=model)
+    llm = ChatAnthropic(model_name=model)
     return create_movie_agent(client, llm=llm, **kwargs)
 
 
 def make_openai_agent(
     client: IMDBAPIClient,
-    model: str = "gpt-4o",
+    model: str = "gpt-5.4",
     **kwargs: Any,
 ) -> CompiledGraph:
     """Convenience wrapper that creates a GPT-backed movie agent.
@@ -252,7 +252,7 @@ def make_openai_agent(
     client:
         An open :class:`~imdbapi.client.IMDBAPIClient` instance.
     model:
-        OpenAI model identifier.  Defaults to ``"gpt-4o"``.
+        OpenAI model identifier.  Defaults to ``"gpt-5.4"``.
     **kwargs:
         Additional keyword arguments forwarded to :func:`create_movie_agent`.
 

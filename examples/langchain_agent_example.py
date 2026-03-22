@@ -17,9 +17,9 @@ Install the agent dependencies::
 
 Set your API key::
 
-    export ANTHROPIC_API_KEY="sk-ant-..."
+    export ANTHROPIC_API_KEY="sk-ant-..." # pragma: allowlist secret
     # or
-    export OPENAI_API_KEY="sk-..."
+    export OPENAI_API_KEY="sk-..."        # pragma: allowlist secret
 
 Run::
 
@@ -89,9 +89,7 @@ async def demo_multi_turn() -> None:
 
         for question in questions:
             print(f"\nUser: {question}")
-            result = await agent.ainvoke(
-                {"messages": [("human", question)]}, config
-            )
+            result = await agent.ainvoke({"messages": [("human", question)]}, config)
             answer = result["messages"][-1].content
             print(f"Agent: {answer}")
 
@@ -107,8 +105,8 @@ async def demo_custom_tools() -> None:
     print("DEMO 3 — Content-only agent (no box office / awards tools)")
     print("=" * 60)
 
-    from langchain_anthropic import ChatAnthropic
     from langchain.agents import create_agent
+    from langchain_anthropic import ChatAnthropic
 
     from imdbapi.langchain.agent import MOVIE_AGENT_SYSTEM_PROMPT
     from imdbapi.langchain.tools import (
@@ -159,9 +157,7 @@ async def demo_streaming() -> None:
         agent = create_movie_agent(client)
 
         async for event in agent.astream_events(
-            {"messages": [
-                ("human", "Recommend 5 top-rated sci-fi movies from the 2000s.")
-            ]},
+            {"messages": [("human", "Recommend 5 top-rated sci-fi movies from the 2000s.")]},
             version="v2",
         ):
             kind = event.get("event")
@@ -169,7 +165,9 @@ async def demo_streaming() -> None:
             if kind == "on_chat_model_stream":
                 chunk = event["data"].get("chunk")
                 if chunk and hasattr(chunk, "content"):
-                    for part in (chunk.content if isinstance(chunk.content, list) else [chunk.content]):
+                    for part in (
+                        chunk.content if isinstance(chunk.content, list) else [chunk.content]
+                    ):
                         if isinstance(part, str):
                             print(part, end="", flush=True)
                         elif isinstance(part, dict) and part.get("type") == "text":
@@ -184,18 +182,19 @@ async def demo_streaming() -> None:
 
 
 async def demo_openai_agent() -> None:
-    """Same agent, GPT-4o backend.  Requires OPENAI_API_KEY."""
+    """Same agent, GPT-5.4 backend.  Requires OPENAI_API_KEY."""
     print("\n" + "=" * 60)
-    print("DEMO 5 — OpenAI GPT-4o agent (skipped if no key)")
+    print("DEMO 5 — OpenAI GPT-5.4 agent (skipped if no key)")
     print("=" * 60)
 
     import os
+
     if not os.getenv("OPENAI_API_KEY"):
         print("Skipped — set OPENAI_API_KEY to run this demo.")
         return
 
     async with IMDBAPIClient() as client:
-        agent = make_openai_agent(client, model="gpt-4o")
+        agent = make_openai_agent(client, model="gpt-5.4")
         result = await agent.ainvoke(
             {"messages": [("human", "What won Best Picture at the Oscars in 2020?")]}
         )
@@ -218,11 +217,11 @@ async def main() -> None:
 
     # DEMO 3 — Content-only agent (no box office / awards tools)
     await demo_custom_tools()
-    
+
     # Demo 4 — streaming (comment out if you prefer clean output)
     await demo_streaming()
-    
-    # DEMO 5 — OpenAI GPT-4o agent (skipped if no key)
+
+    # DEMO 5 — OpenAI GPT-5.4 agent (skipped if no key)
     await demo_openai_agent()
 
 

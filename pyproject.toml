@@ -98,6 +98,24 @@ explicit_package_bases = true
 module = "tests.*"
 disallow_untyped_decorators = false
 
+[[tool.mypy.overrides]]
+# TitlesEndpoint has a method named `list` which shadows the builtin in class body
+# annotations, even with `from __future__ import annotations`.
+module = "imdbapi.endpoints.titles"
+disable_error_code = ["valid-type"]
+
+[[tool.mypy.overrides]]
+# langchain_core stubs are incomplete — BaseTool resolves to Any, which causes
+# "Class cannot subclass X (has type Any)" on every tool class definition.
+module = "imdbapi.langchain.tools"
+disable_error_code = ["misc"]
+
+[[tool.mypy.overrides]]
+# langchain_anthropic stubs require `timeout` and `stop` as positional args in
+# one overload; at runtime these are optional kwargs. Suppress the false positive.
+module = "imdbapi.langchain.agent"
+disable_error_code = ["call-arg"]
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]

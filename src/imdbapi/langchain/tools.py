@@ -141,6 +141,14 @@ class _GetInterestCategoryIn(BaseModel):
     interest_id: str = Field(description="IMDb interest/genre ID, e.g. 'ge0000007'")
 
 
+class _GetTitleParentalGuideIn(BaseModel):
+    title_id: str = Field(description="IMDb title ID (e.g. 'tt0111161')")
+
+
+class _GetTitleCertificatesIn(BaseModel):
+    title_id: str = Field(description="IMDb title ID (e.g. 'tt0111161')")
+
+
 # ---------------------------------------------------------------------------
 # Tools
 # ---------------------------------------------------------------------------
@@ -788,6 +796,84 @@ class GetInterestCategoryTool(BaseTool):
         raise NotImplementedError("Use the async interface: await tool.arun(...)")
 
 
+class GetTitleParentalGuideTool(BaseTool):
+    """Fetch IMDb parental guide / content advisory data for a title."""
+
+    name: str = "get_title_parental_guide"
+    description: str = (
+        "Fetch IMDb parental content advisory data for a movie or TV show. "
+        "Returns per-category breakdowns for: SEXUAL_CONTENT, VIOLENCE, PROFANITY, "
+        "ALCOHOL_DRUGS, and FRIGHTENING_INTENSE_SCENES. "
+        "Each category includes a severity-level vote breakdown (NONE, MILD, MODERATE, SEVERE) "
+        "and user-written review excerpts describing what is present. "
+        "ALWAYS use this tool when the user asks whether a title is appropriate for children, "
+        "asks about age suitability, content warnings, or mentions parental guidance. "
+        "Do NOT answer suitability questions from your own knowledge — fetch real data first."
+    )
+    args_schema: type[BaseModel] = _GetTitleParentalGuideIn
+    client: Any
+
+    async def _arun(self, title_id: str) -> str:
+        try:
+            result = await self.client.titles.get_parents_guide(title_id)
+            categories = []
+            for pg in result.parents_guide:
+                severities = {s.severity_level: s.vote_count for s in pg.severity_breakdowns}
+                # Pick up to 2 non-spoiler review excerpts
+                reviews = [r.text for r in pg.reviews if not r.is_spoiler][:2]
+                categories.append(
+                    {
+                        "category": pg.category,
+                        "severityVotes": severities,
+                        "sampleReviews": reviews,
+                    }
+                )
+            return json.dumps({"parentsGuide": categories, "titleId": title_id}, default=str)
+        except IMDBAPIError as exc:
+            return _error(exc)
+
+    def _run(self, *args: Any, **kwargs: Any) -> str:
+        raise NotImplementedError("Use the async interface: await tool.arun(...)")
+
+
+class GetTitleCertificatesTool(BaseTool):
+    """Fetch regional age-rating certificates (MPAA, BBFC, etc.) for a title."""
+
+    name: str = "get_title_certificates"
+    description: str = (
+        "Fetch official content-rating certificates for a movie or TV show, "
+        "issued by regional classification bodies (e.g. MPAA in the US, BBFC in the UK). "
+        "Returns the rating label (G, PG, PG-13, R, NC-17, 12A, 15, 18, …) and the "
+        "country it applies to. "
+        "Use this alongside 'get_title_parental_guide' when the user asks about age ratings, "
+        "official certifications, or whether a title is safe for a specific age group."
+    )
+    args_schema: type[BaseModel] = _GetTitleCertificatesIn
+    client: Any
+
+    async def _arun(self, title_id: str) -> str:
+        try:
+            result = await self.client.titles.get_certificates(title_id)
+            certs = [
+                {
+                    "rating": c.rating,
+                    "country": c.country.name if c.country else None,
+                    "countryCode": c.country.code if c.country else None,
+                    "attributes": c.attributes,
+                }
+                for c in result.certificates
+            ]
+            return json.dumps(
+                {"certificates": certs, "totalCount": result.total_count, "titleId": title_id},
+                default=str,
+            )
+        except IMDBAPIError as exc:
+            return _error(exc)
+
+    def _run(self, *args: Any, **kwargs: Any) -> str:
+        raise NotImplementedError("Use the async interface: await tool.arun(...)")
+
+
 # ---------------------------------------------------------------------------
 # Factory
 # ---------------------------------------------------------------------------
@@ -822,6 +908,8 @@ def create_imdb_tools(client: IMDBAPIClient) -> list[BaseTool]:
         GetTitleEpisodesTool(client=client),
         GetTitleBoxOfficeTool(client=client),
         GetTitleAwardsTool(client=client),
+        GetTitleParentalGuideTool(client=client),
+        GetTitleCertificatesTool(client=client),
         GetNameTool(client=client),
         GetNameFilmographyTool(client=client),
         ListInterestCategoriesTool(client=client),

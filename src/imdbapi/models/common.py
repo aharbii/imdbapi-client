@@ -38,15 +38,15 @@ class Image(_CamelModel):
 class Country(_CamelModel):
     """ISO 3166-1 alpha-2 country representation."""
 
-    code: str
-    name: str
+    code: str = ""
+    name: str = ""
 
 
 class Language(_CamelModel):
     """ISO 639-3 language representation."""
 
-    code: str
-    name: str
+    code: str = ""
+    name: str = ""
 
 
 class Rating(_CamelModel):

@@ -39,7 +39,7 @@ class BaseEndpoint:
         dict[str, Any]
             Parsed JSON response body.
         """
-        self._logger.debug("Endpoint GET %s params=%s", path, params)
+        self._logger.debug(f"Endpoint GET {path} params={params}")
         return await self._client._request("GET", path, params=params)
 
     @staticmethod

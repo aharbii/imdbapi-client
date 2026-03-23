@@ -131,7 +131,7 @@ class IMDBAPIClient:
         """
         # httpx.AsyncClient is ready on construction; this is a no-op kept
         # for API symmetry with ``close``.
-        self._logger.debug("IMDBAPIClient opened (base_url=%s)", self._http.base_url)
+        self._logger.debug(f"IMDBAPIClient opened (base_url={self._http.base_url})")
 
     async def close(self) -> None:
         """Close the underlying HTTP connection pool and release resources."""
@@ -241,7 +241,7 @@ class IMDBAPIClient:
         IMDBAPIHTTPError
             Subclass matching the HTTP status code.
         """
-        self._logger.debug("→ %s %s params=%s", method, path, params)
+        self._logger.debug(f"→ {method} {path} params={params}")
         try:
             response = await self._http.request(method, path, params=params)
         except httpx.TimeoutException as exc:
@@ -252,11 +252,7 @@ class IMDBAPIClient:
             raise IMDBAPIConnectionError(f"HTTP transport error: {method} {path} — {exc}") from exc
 
         self._logger.debug(
-            "← %s %s → HTTP %d (%d bytes)",
-            method,
-            path,
-            response.status_code,
-            len(response.content),
+            f"← {method} {path} → HTTP {response.status_code} ({len(response.content)} bytes)"
         )
 
         if response.is_success:

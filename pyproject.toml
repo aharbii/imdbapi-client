@@ -2,7 +2,6 @@
 name = "imdbapi-client"
 version = "0.1.0"
 description = "Production-ready async Python client for imdbapi.dev — free IMDb REST API"
-readme = "README.md"
 requires-python = ">=3.13"
 license = { text = "MIT" }
 keywords = ["imdb", "movies", "api", "client", "async"]

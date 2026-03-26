@@ -115,11 +115,33 @@ uv run pre-commit run --all-files
 
 ---
 
+## Workflow invariants
+
+- This repo is the gitlink path `imdbapi` inside `aharbii/movie-finder-backend`. Parent
+  workflow/path filters must use `imdbapi`, not `imdbapi/**`.
+- Cross-repo tracker issues originate in `aharbii/movie-finder`. Create the linked child issue in
+  this repo only if this repo will actually change.
+- Inspect `.github/ISSUE_TEMPLATE/*.yml`, `.github/PULL_REQUEST_TEMPLATE.md` when present, and a
+  recent example before creating or editing issues/PRs. Do not improvise titles or bodies.
+- For child issues in this repo, use `.github/ISSUE_TEMPLATE/linked_task.yml` and keep the
+  description, file references, and acceptance criteria repo-specific.
+- If CI, required checks, or merge policy changes affect this repo, update contributor-facing docs
+  here and in `aharbii/movie-finder-backend` and/or `aharbii/movie-finder` where relevant.
+- If a new standalone issue appears mid-session, branch from `main` unless stacking is explicitly
+  requested.
+- PR descriptions must disclose the AI authoring tool + model. Any AI-assisted review comment or
+  approval must also disclose the review tool + model.
+
+---
+
 ## Session start protocol
 
 1. `gh issue list --repo aharbii/movie-finder --state open`
-2. Create issue in `aharbii/movie-finder`, then `aharbii/imdbapi-client` linked
-3. Create branch + work through checklist
+2. Inspect `.github/ISSUE_TEMPLATE/*.yml`, `.github/PULL_REQUEST_TEMPLATE.md` when present, and a
+   recent example of the same type
+3. Create the parent issue in `aharbii/movie-finder`, then the linked child issue in
+   `aharbii/imdbapi-client` only if this repo will actually change
+4. Create a branch from `main` and work through the checklist
 
 ---
 
@@ -137,10 +159,12 @@ Conventional Commits: `fix(imdbapi): reduce retry base delay to 2s`
 
 ### 1. GitHub issues
 - [ ] `aharbii/movie-finder` (parent)
-- [ ] `aharbii/imdbapi-client` linked
+- [ ] `aharbii/imdbapi-client` linked child issue only if this repo changes
+- [ ] Matching issue/PR templates and a recent example were inspected before filing or editing
 
 ### 2. Branch
 - [ ] Branch in this repo + `chore/` in `backend/` and root `movie-finder`
+- [ ] New standalone issues branch from `main` unless stacking is explicitly requested
 
 ### 3. ADR
 - [ ] Retry strategy change, new external dependency, or API contract decision?
@@ -162,7 +186,7 @@ Conventional Commits: `fix(imdbapi): reduce retry base delay to 2s`
 - [ ] `docker-compose.yml` if needed
 
 ### 7. CI — Jenkins
-- [ ] `Jenkinsfile` reviewed
+- [ ] `.github/workflows/*.yml` and/or `Jenkinsfile` reviewed
 
 ### 8. Architecture diagrams (in `docs/` submodule)
 - [ ] **PlantUML** — `08-seq-chat-sse.puml` or `09-seq-langgraph-execution.puml` if timing or interface changed
@@ -172,6 +196,7 @@ Conventional Commits: `fix(imdbapi): reduce retry base delay to 2s`
 ### 9. Documentation
 - [ ] `README.md` updated (API coverage table, retry config)
 - [ ] `CHANGELOG.md` under `[Unreleased]`
+- [ ] Contributor docs updated when CI, required checks, or merge policy change
 
 ### 10. Sibling submodules affected
 | Submodule | Why |
@@ -186,6 +211,7 @@ git add backend && git commit -m "chore(backend): bump to latest main"   # in ro
 ```
 
 ### 12. Pull request
-- [ ] PR in `aharbii/imdbapi-client`
+- [ ] PR in `aharbii/imdbapi-client` discloses the AI authoring tool + model
 - [ ] PR in `aharbii/movie-finder-backend` (pointer bump)
 - [ ] PR in `aharbii/movie-finder` (pointer bump)
+- [ ] Any AI-assisted review comment or approval discloses the review tool + model

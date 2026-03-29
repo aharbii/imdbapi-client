@@ -2,11 +2,15 @@
 
 A production-ready, fully-typed **async** Python client for the free [imdbapi.dev](https://imdbapi.dev) REST API (v2.7.12).
 
+Contributor workflow in this repo is **strictly Docker-only**: all quality gates (lint,
+test, typecheck, test-coverage, pre-commit) execute through the provided `Makefile`.
+Host-managed Python environments are not supported for development.
+
 Built with:
 - **[httpx](https://www.python-httpx.org/)** — async HTTP with connection pooling
 - **[Pydantic v2](https://docs.pydantic.dev/)** — response validation & camelCase → snake_case mapping
 - **[tenacity](https://tenacity.readthedocs.io/)** — configurable exponential back-off retries
-- **[uv](https://docs.astral.sh/uv/)** — dependency management with isolated groups
+- **[uv](https://docs.astral.sh/uv/)** — dependency management inside Docker
 - **[ruff](https://docs.astral.sh/ruff/)** + **[mypy](https://mypy.readthedocs.io/)** — linting and strict type-checking
 
 ---
@@ -32,7 +36,7 @@ Built with:
 
 - **Fully async** — built on `httpx.AsyncClient`; sync usage via `asyncio.run()`
 - **All 23 endpoints** — titles, names, interests, search, charts
-- **Typed models** — every response is a Pydantic model with IDE autocompletion
+- **Typed models** — every response is a Pydantic model with absolute import paths
 - **Auto-paginator** — `AsyncPaginator` follows `nextPageToken` cursors automatically
 - **Retry on transient errors** — 5xx, timeouts, connection failures with exponential back-off
 - **Structured exceptions** — `IMDBAPINotFoundError`, `IMDBAPIRateLimitError`, etc.
@@ -43,7 +47,7 @@ Built with:
 
 ## Project Structure
 
-```
+```text
 src/
   imdbapi/
     __init__.py          # Public re-exports: IMDBAPIClient + exceptions
@@ -51,6 +55,8 @@ src/
     exceptions.py        # Exception hierarchy
     pagination.py        # AsyncPaginator generic iterator
     py.typed             # PEP 561 type marker
+    utils/
+      logger.py          # get_logger() factory (nested under imdbapi)
     models/
       __init__.py        # Flat re-export of all Pydantic models
       common.py          # Shared: Image, Country, Rating, Money, …
@@ -65,8 +71,6 @@ src/
       interests.py       # InterestsEndpoint (2 operations)
       search.py          # SearchEndpoint (1 operation)
       charts.py          # ChartsEndpoint (1 operation + paginator)
-  utils/
-    logger.py            # get_logger() factory (console + rotating file)
 tests/
   conftest.py            # Shared fixtures + sample payloads
   test_client.py         # HTTP error mapping, retry, lifecycle
@@ -75,46 +79,35 @@ tests/
   test_interests.py      # Interest endpoint tests
   test_search.py         # Search + charts tests
   test_pagination.py     # AsyncPaginator multi-page iteration
-Dockerfile               # Multi-stage build (builder + runtime)
-.dockerignore
-pyproject.toml           # Project metadata, deps, tool config
+Dockerfile               # Multi-stage build (builder + runtime + dev)
+docker-compose.yml       # Dev container for Docker-only tasks
+Makefile                 # Docker-backed repo targets (DNA aligned with backend)
+.env.example             # Standardized environment template
+pyproject.toml           # Project metadata and absolute package config
+.vscode/                 # Attached-container editor configuration
 ```
 
 ---
 
 ## Installation
 
-### Using uv (recommended)
+### For consumers (host environment)
 
 ```bash
-# Install runtime only
-uv sync
+# Using uv
+uv add git+https://github.com/aharbii/imdbapi-client
 
-# Install with dev tools (lint + test)
-uv sync --group dev
-
-# Install only test dependencies
-uv sync --group test
-
-# Install only lint tools
-uv sync --group lint
+# Using pip
+pip install git+https://github.com/aharbii/imdbapi-client
 ```
 
-### Using pip
+### For contributors (Docker-only)
 
 ```bash
-pip install httpx pydantic tenacity
-pip install -e .
+cp .env.example .env
+make init
+make editor-up
 ```
-
-### Dependency groups
-
-| Group | Contents | CI stage |
-|-------|----------|----------|
-| (default) | `httpx`, `pydantic`, `tenacity` | Production runtime |
-| `lint` | `ruff`, `mypy` | Lint CI job |
-| `test` | `pytest`, `pytest-asyncio`, `respx`, `pytest-cov` | Test CI job |
-| `dev` | All of the above + `pre-commit` | Local development |
 
 ---
 
@@ -141,7 +134,8 @@ async def main():
         person = await client.names.get("nm0634240")
         print(person.display_name, person.primary_professions)
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ### Sync usage
@@ -157,6 +151,8 @@ asyncio.run(client.close())
 ```
 
 ### Integrating into a larger project
+
+Always use absolute imports when integrating the library:
 
 ```python
 from imdbapi import IMDBAPIClient
@@ -183,10 +179,10 @@ class MovieService:
 
 ### Logging
 
-Use the provided logger factory in your own modules:
+Use the provided logger factory in your own modules (always use absolute imports):
 
 ```python
-from utils.logger import get_logger
+from imdbapi.utils.logger import get_logger
 logger = get_logger(__name__)
 
 # Enable debug mode on the client for verbose HTTP logs:
@@ -346,32 +342,37 @@ client = IMDBAPIClient(
 
 ## Development
 
-### Setup
+Contributor setup is **strictly Docker-only**. You do not need a host-managed
+Python interpreter or `uv` installation to develop on this project.
+
+### Prerequisites
+
+- Docker 24+ with the Compose plugin
+- `make`
+
+### Common commands
 
 ```bash
-cd imdbapi-client
-uv sync --group dev
-uv run pre-commit install
+make init           # build dev image
+make editor-up      # start container for VS Code attach
+make shell          # shell into the container
+make lint           # ruff check
+make format         # ruff format
+make typecheck      # mypy --strict (covers src + tests)
+make test           # pytest
+make test-coverage  # pytest with coverage report
+make detect-secrets # standalone secret scan
+make pre-commit     # mirrored repo hooks
+make check          # lint + typecheck + test
+make ci-down        # full cleanup (volumes + images)
 ```
 
-### Linting
+### VS Code
 
-```bash
-# Lint + auto-fix
-uv run ruff check --fix src/ tests/
-
-# Format
-uv run ruff format src/ tests/
-
-# Type-check
-uv run mypy src/
-```
-
-### Running the example
-
-```bash
-uv run python main.py
-```
+1. Run `make editor-up`.
+2. Use `Dev Containers: Attach to Running Container...`.
+3. Attach to the `imdbapi` container started from this repo.
+4. Use the committed tasks and launch configurations from that attached session.
 
 ---
 
@@ -380,79 +381,34 @@ uv run python main.py
 All tests use `respx` to mock HTTP — **no real network traffic**:
 
 ```bash
-# Run all tests
-uv run pytest
-
-# With HTML coverage report
-uv run pytest --cov=src --cov-report=html
-
-# Single file
-uv run pytest tests/test_titles.py -v
-
-# Single test
-uv run pytest tests/test_pagination.py::test_multi_page_iteration -v
+make test
+make test-coverage
 ```
 
-### CI job layout
-
-```yaml
-# Example GitHub Actions structure
-jobs:
-  lint:
-    steps:
-      - run: uv sync --group lint
-      - run: uv run ruff check src/ tests/
-      - run: uv run mypy src/
-
-  test:
-    steps:
-      - run: uv sync --group test
-      - run: uv run pytest --cov=src --cov-report=xml
-
-  docker:
-    steps:
-      - run: docker build -t imdbapi-client .
-      - run: docker run --rm imdbapi-client python -c "import imdbapi; print('OK')"
+To run a specific test from within the container:
+```bash
+pytest tests/test_titles.py -v -k "test_get"
 ```
 
 ---
 
 ## Docker
 
-```bash
-# Build
-docker build -t imdbapi-client:latest .
+This repository uses a multi-stage `Dockerfile` to ensure environment parity
+across development and production.
 
-# Run example
-docker run --rm imdbapi-client:latest
-
-# Override entrypoint for interactive use
-docker run --rm -it imdbapi-client:latest python
-```
-
-### Multi-stage build overview
-
-| Stage | Base image | Purpose |
-|-------|-----------|---------|
-| `builder` | `python:3.13-slim` + uv | Installs runtime deps into `/app/.venv` |
-| `runtime` | `python:3.13-slim` | Copies venv + source; runs as non-root `appuser` |
+| Stage | Purpose |
+|-------|---------|
+| `dev` | Local development (includes lint/test tools) |
+| `builder` | Dependency synchronization |
+| `runtime` | Lean production image |
 
 ---
 
 ## Package Distribution
 
-### Build a wheel
-
-```bash
-uv build
-# → dist/imdbapi_client-0.1.0-py3-none-any.whl
-```
-
-### Publish to PyPI
-
-```bash
-uv publish --token $PYPI_TOKEN
-```
+Packaging and image publication are handled in CI from the `runtime` stage
+defined in [Dockerfile](Dockerfile).
 
 ### Install in another project
 
@@ -460,14 +416,6 @@ uv publish --token $PYPI_TOKEN
 # pyproject.toml
 [project]
 dependencies = ["imdbapi-client>=0.1.0"]
-```
-
-```bash
-# From GitHub
-uv add git+https://github.com/your-org/imdbapi-client
-
-# From local wheel
-pip install dist/imdbapi_client-0.1.0-py3-none-any.whl
 ```
 
 ---

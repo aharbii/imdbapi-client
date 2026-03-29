@@ -6,8 +6,8 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from ..exceptions import IMDBAPIValidationError
-from ..models.name import (
+from imdbapi.exceptions import IMDBAPIValidationError
+from imdbapi.models.name import (
     BatchGetNamesResponse,
     ListNameFilmographyResponse,
     ListNameImagesResponse,
@@ -15,8 +15,8 @@ from ..models.name import (
     ListNameTriviaResponse,
     Name,
 )
-from ..pagination import AsyncPaginator
-from .base import BaseEndpoint
+from imdbapi.pagination import AsyncPaginator
+from imdbapi.endpoints.base import BaseEndpoint
 
 
 class NamesEndpoint(BaseEndpoint):

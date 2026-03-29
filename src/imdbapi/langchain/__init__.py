@@ -21,8 +21,8 @@ Dependencies (install one provider group)::
     uv sync --group agents-openai      # GPT
 """
 
-from .agent import create_movie_agent
-from .tools import (
+from imdbapi.langchain.agent import create_movie_agent
+from imdbapi.langchain.tools import (
     GetInterestCategoryTool,
     GetNameFilmographyTool,
     GetNameTool,

@@ -5,7 +5,7 @@ Import from here for a stable, flat namespace::
     from imdbapi.models import Title, Name, Interest, TitleType
 """
 
-from .common import (
+from imdbapi.models.common import (
     Company,
     Country,
     Event,
@@ -17,8 +17,8 @@ from .common import (
     PrecisionDate,
     Rating,
 )
-from .interest import Interest, InterestCategory, InterestRef, ListInterestCategoriesResponse
-from .name import (
+from imdbapi.models.interest import Interest, InterestCategory, InterestRef, ListInterestCategoriesResponse
+from imdbapi.models.name import (
     BatchGetNamesResponse,
     ListNameFilmographyResponse,
     ListNameImagesResponse,
@@ -30,7 +30,7 @@ from .name import (
     NameRelationship,
     NameTrivia,
 )
-from .title import (
+from imdbapi.models.title import (
     AKA,
     AwardNomination,
     AwardNominationStats,

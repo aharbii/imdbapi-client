@@ -5,15 +5,23 @@
 //   • PR validation  — every pull request to main
 //   • Release        — every git tag matching v*
 //
+// Local / CI contract:
+//   - lint, typecheck, test, coverage, and pre-commit live behind Makefile
+//   - Makefile dispatches into docker compose and the repo-local dev image
+//
 // Required Jenkins credentials:
 //   docker-registry-url  — Docker registry base URL (e.g. ghcr.io/aharbii)
+//
+// Agent requirements:
+//   - Docker Engine
+//   - docker compose plugin
 //
 // Required Jenkins plugins:
 //   Docker Pipeline, JUnit, Cobertura, Credentials Binding
 // =============================================================================
 
 pipeline {
-    agent none
+    agent any
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '20'))
@@ -22,44 +30,34 @@ pipeline {
     }
 
     environment {
-        SERVICE_NAME    = 'imdbapi-client'
-        UV_IMAGE        = 'ghcr.io/astral-sh/uv:python3.13-bookworm-slim'
-        DOCKER_IMAGE    = 'docker:24-dind'
+        SERVICE_NAME = 'imdbapi-client'
+        COMPOSE_PROJECT_NAME = "imdbapi-ci-${env.BUILD_NUMBER}"
     }
 
     stages {
 
         // ------------------------------------------------------------------ //
-        stage('Lint') {
-            agent {
-                docker {
-                    image "${UV_IMAGE}"
-                }
-            }
+        stage('Lint + Typecheck') {
             steps {
-                // imdbapi is standalone — has its own uv.lock
-                sh 'uv sync --frozen --group lint'
-                sh 'uv run ruff check src/ tests/'
-                sh 'uv run ruff format --check src/ tests/'
-                sh 'uv run mypy src/'
+                sh '''
+                    set -e
+                    make lint
+                    make typecheck
+                '''
+            }
+            post {
+                always {
+                    sh 'make ci-down || true'
+                }
             }
         }
 
         // ------------------------------------------------------------------ //
         stage('Test') {
-            agent {
-                docker {
-                    image "${UV_IMAGE}"
-                }
-            }
             steps {
-                sh 'uv sync --frozen --group test'
                 sh '''
-                    uv run pytest tests/ \
-                        --cov=src \
-                        --cov-report=xml:coverage.xml \
-                        --junitxml=test-results.xml \
-                        -v --tb=short
+                    set -e
+                    make coverage
                 '''
             }
             post {
@@ -68,6 +66,7 @@ pipeline {
                     cobertura coberturaReportFile: 'coverage.xml',
                               onlyStable: false,
                               failNoReports: false
+                    sh 'make ci-down || true'
                 }
             }
         }
@@ -80,18 +79,12 @@ pipeline {
                     buildingTag()
                 }
             }
-            agent {
-                docker {
-                    image "${DOCKER_IMAGE}"
-                    args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
             environment {
                 DOCKER_REGISTRY = credentials('docker-registry-url')
                 IMAGE_TAG = "${DOCKER_REGISTRY}/${SERVICE_NAME}:${env.GIT_TAG_NAME ?: env.GIT_COMMIT.take(8)}"
             }
             steps {
-                sh "docker build -t ${IMAGE_TAG} ."
+                sh "docker build --target runtime -t ${IMAGE_TAG} ."
                 sh "docker push ${IMAGE_TAG}"
 
                 script {
@@ -107,6 +100,7 @@ pipeline {
 
     post {
         always {
+            sh 'make ci-down || true'
             cleanWs()
         }
         failure {

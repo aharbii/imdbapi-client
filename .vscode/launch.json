@@ -1,38 +1,43 @@
 {
   "version": "0.2.0",
   "configurations": [
-    // ── Run the interactive example ────────────────────────────────────────
+    // ── Attach to the running editor container first ──────────────────────
+    // Start it with `make editor-up`, then use:
+    //   Dev Containers: Attach to Running Container...
     {
-      "name": "imdbapi: run main.py",
+      "name": "imdbapi: run main.py (container)",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/main.py",
       "envFile": "${workspaceFolder}/.env",
-      "python": "${workspaceFolder}/../.venv/bin/python",
+      "python": "/opt/venv/bin/python",
       "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "justMyCode": false
     },
 
     // ── pytest ──────────────────────────────────────────────────────────────
     {
-      "name": "pytest: All tests",
+      "name": "pytest: all tests (imdbapi container)",
       "type": "debugpy",
       "request": "launch",
       "module": "pytest",
       "args": ["tests/", "--asyncio-mode=auto", "-v"],
       "envFile": "${workspaceFolder}/.env",
-      "python": "${workspaceFolder}/../.venv/bin/python",
-      "cwd": "${workspaceFolder}"
+      "python": "/opt/venv/bin/python",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": false
     },
     {
-      "name": "pytest: Current file",
+      "name": "pytest: current file (imdbapi container)",
       "type": "debugpy",
       "request": "launch",
       "module": "pytest",
       "args": ["${file}", "--asyncio-mode=auto", "-v"],
       "envFile": "${workspaceFolder}/.env",
-      "python": "${workspaceFolder}/../.venv/bin/python",
-      "cwd": "${workspaceFolder}"
+      "python": "/opt/venv/bin/python",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": false
     }
   ]
 }

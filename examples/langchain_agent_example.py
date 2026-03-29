@@ -9,11 +9,12 @@ Demonstrates three usage patterns:
 
 Prerequisites
 -------------
-Install the agent dependencies::
+From `make shell` or an attached container session, install the optional agent
+dependencies::
 
-    uv sync --group agents-anthropic   # for Claude (default)
+    uv sync --frozen --group agents-anthropic --active   # for Claude (default)
     # or
-    uv sync --group agents-openai      # for GPT
+    uv sync --frozen --group agents-openai --active      # for GPT
 
 Set your API key::
 
@@ -23,7 +24,7 @@ Set your API key::
 
 Run::
 
-    uv run python examples/langchain_agent_example.py
+    python examples/langchain_agent_example.py
 """
 
 from __future__ import annotations
@@ -35,7 +36,7 @@ from dotenv import load_dotenv
 from imdbapi import IMDBAPIClient
 from imdbapi.langchain import create_movie_agent
 from imdbapi.langchain.agent import make_openai_agent
-from utils.logger import get_logger
+from imdbapi.utils.logger import get_logger
 
 logger = get_logger(__name__)
 

@@ -7,7 +7,7 @@ full objects from the ``/interests`` endpoints.
 
 from __future__ import annotations
 
-from .common import Image, _CamelModel
+from imdbapi.models.common import Image, _CamelModel
 
 
 class InterestRef(_CamelModel):

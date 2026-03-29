@@ -42,14 +42,14 @@ from tenacity import (
     wait_exponential,
 )
 
-from utils.logger import get_logger
+from imdbapi.utils.logger import get_logger
 
-from .endpoints.charts import ChartsEndpoint
-from .endpoints.interests import InterestsEndpoint
-from .endpoints.names import NamesEndpoint
-from .endpoints.search import SearchEndpoint
-from .endpoints.titles import TitlesEndpoint
-from .exceptions import (
+from imdbapi.endpoints.charts import ChartsEndpoint
+from imdbapi.endpoints.interests import InterestsEndpoint
+from imdbapi.endpoints.names import NamesEndpoint
+from imdbapi.endpoints.search import SearchEndpoint
+from imdbapi.endpoints.titles import TitlesEndpoint
+from imdbapi.exceptions import (
     IMDBAPIBadRequestError,
     IMDBAPIConnectionError,
     IMDBAPIError,

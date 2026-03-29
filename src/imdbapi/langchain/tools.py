@@ -29,11 +29,11 @@ from typing import TYPE_CHECKING, Any
 from langchain_core.tools import BaseTool
 from pydantic import BaseModel, Field
 
-from ..exceptions import IMDBAPIError
-from ..models.title import SortBy, SortOrder, TitleType
+from imdbapi.exceptions import IMDBAPIError
+from imdbapi.models.title import SortBy, SortOrder, TitleType
 
 if TYPE_CHECKING:
-    from ..client import IMDBAPIClient
+    from imdbapi.client import IMDBAPIClient
 
 
 # ---------------------------------------------------------------------------

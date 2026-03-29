@@ -5,10 +5,10 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
-from utils.logger import get_logger
+from imdbapi.utils.logger import get_logger
 
 if TYPE_CHECKING:
-    from ..client import IMDBAPIClient
+    from imdbapi.client import IMDBAPIClient
 
 
 class BaseEndpoint:

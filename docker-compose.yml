@@ -1,0 +1,37 @@
+# =============================================================================
+# imdbapi-client — Docker-only local development container
+#
+# This repo is a library/client, not a standalone service. The compose file
+# exists to provide one reusable dev image for repo-local quality targets and an
+# attachable container for VS Code.
+# =============================================================================
+
+name: imdbapi-client-local
+
+services:
+  imdbapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    image: imdbapi-client:dev
+    working_dir: /workspace
+    command:
+      - sleep
+      - infinity
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GIT_DIR: /workspace/.gitdir
+      GIT_WORK_TREE: /workspace
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    volumes:
+      - .:/workspace
+      - ${IMDBAPI_GIT_DIR:-.git}:/workspace/.gitdir
+      - uv_cache:/root/.cache/uv
+      - pre_commit_cache:/root/.cache/pre-commit
+    stdin_open: true
+    tty: true
+
+volumes:
+  uv_cache:
+  pre_commit_cache:

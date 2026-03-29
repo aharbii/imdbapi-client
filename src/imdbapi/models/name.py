@@ -6,8 +6,8 @@ endpoint families defined in imdbapi.dev v2.7.12.
 
 from __future__ import annotations
 
-from .common import Image, PrecisionDate, _CamelModel
-from .title import Credit
+from imdbapi.models.common import Image, PrecisionDate, _CamelModel
+from imdbapi.models.title import Credit
 
 # ---------------------------------------------------------------------------
 # Core person object

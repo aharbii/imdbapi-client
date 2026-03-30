@@ -18,7 +18,7 @@ Parent project: `aharbii/movie-finder` — all issues created there first, then 
 
 ## Python standards
 
-- Python 3.13, `uv` workspace member (`backend/.venv`), `ruff` + `mypy --strict`, line length **100**
+- Python 3.13, Docker-only local dev via `make` + `docker compose`, `ruff` + `mypy --strict`, line length **100**
 - Type annotations required on all public functions
 - Async all the way — no blocking I/O in async context
 - Docstrings on all public classes and functions (Google style)
@@ -38,8 +38,7 @@ Parent project: `aharbii/movie-finder` — all issues created there first, then 
 ## Pre-commit hooks
 
 ```bash
-uv run pre-commit install
-uv run pre-commit run --all-files
+make pre-commit
 ```
 
 Hooks: `trailing-whitespace`, `end-of-file-fixer`, `check-yaml`, `check-merge-conflict`,

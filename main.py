@@ -1,8 +1,8 @@
 """Entry-point demonstrating basic usage of the imdbapi client.
 
-Run with::
+Run from an attached container session or `make shell`, then::
 
-    uv run python main.py
+    python main.py
 """
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ import asyncio
 from imdbapi import IMDBAPIClient
 from imdbapi.exceptions import IMDBAPIError
 from imdbapi.models import TitleType
-from utils.logger import get_logger
+from imdbapi.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -53,7 +53,12 @@ async def main() -> None:
         )
         logger.info("Total matching: %d  (showing %d)", movies.total_count, len(movies.titles))
         for t in movies.titles[:5]:
-            logger.info("  • %s (%s) — %.1f", t.primary_title, t.start_year, t.rating.aggregate_rating if t.rating else 0.0)
+            logger.info(
+                "  • %s (%s) — %.1f",
+                t.primary_title,
+                t.start_year,
+                t.rating.aggregate_rating if t.rating else 0.0,
+            )
 
         # ----------------------------------------------------------------
         # Fetch a person

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from .common import (
+from imdbapi.models.common import (
     Company,
     Country,
     Event,
@@ -21,7 +21,7 @@ from .common import (
     Rating,
     _CamelModel,
 )
-from .interest import InterestRef
+from imdbapi.models.interest import InterestRef
 
 # ---------------------------------------------------------------------------
 # Enumerations

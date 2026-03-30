@@ -1,9 +1,15 @@
 {
-  // ── Python interpreter ────────────────────────────────────────────────────
-  // imdbapi/ is a uv workspace member — the venv lives at backend/.venv.
-  // Run `uv sync --all-packages` from backend/ to create it.
-  "python.defaultInterpreterPath": "${workspaceFolder}/../.venv/bin/python",
-  "python.terminal.activateEnvironment": true,
+  // ── Docker-only workflow ─────────────────────────────────────────────────
+  // Host tasks go through `make ...`.
+  // Python-powered editor features assume VS Code is attached to the running
+  // `imdbapi` compose service after `make editor-up`.
+  "python.defaultInterpreterPath": "/opt/venv/bin/python",
+  "python.terminal.activateEnvironment": false,
+  "python.envFile": "${workspaceFolder}/.env",
+
+  // ── Editor intelligence ──────────────────────────────────────────────────
+  "python.analysis.extraPaths": ["${workspaceFolder}/src"],
+  "python.analysis.autoImportCompletions": true,
 
   // ── Ruff ──────────────────────────────────────────────────────────────────
   "[python]": {
@@ -23,6 +29,7 @@
   // ── Editor ────────────────────────────────────────────────────────────────
   "editor.rulers": [100],
   "editor.tabSize": 4,
+  "editor.insertSpaces": true,
 
   // ── File explorer ─────────────────────────────────────────────────────────
   "files.exclude": {
@@ -30,11 +37,16 @@
     "**/.mypy_cache": true,
     "**/.ruff_cache": true,
     "**/*.pyc": true,
-    "**/.pytest_cache": true
+    "**/.pytest_cache": true,
+    "**/htmlcov": true,
+    "**/dist": true,
+    "**/*.egg-info": true
   },
 
   // ── Test discovery ────────────────────────────────────────────────────────
   "python.testing.pytestEnabled": true,
-  "python.testing.pytestArgs": ["--asyncio-mode=auto", "-v"],
+  "python.testing.pytestArgs": ["tests/", "--asyncio-mode=auto", "-v"],
+  "python.testing.cwd": "${workspaceFolder}",
+  "python.testing.autoTestDiscoverOnSaveEnabled": true,
   "python.testing.unittestEnabled": false
 }

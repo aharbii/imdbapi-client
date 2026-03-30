@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from pydantic import ValidationError
 
-from ..exceptions import IMDBAPIValidationError
-from ..models.name import ListStarMetersResponse
-from ..pagination import AsyncPaginator
-from .base import BaseEndpoint
+from imdbapi.exceptions import IMDBAPIValidationError
+from imdbapi.models.name import ListStarMetersResponse
+from imdbapi.pagination import AsyncPaginator
+from imdbapi.endpoints.base import BaseEndpoint
 
 
 class ChartsEndpoint(BaseEndpoint):

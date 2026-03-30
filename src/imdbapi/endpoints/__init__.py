@@ -1,10 +1,10 @@
 """Endpoint sub-package — one module per resource group."""
 
-from .charts import ChartsEndpoint
-from .interests import InterestsEndpoint
-from .names import NamesEndpoint
-from .search import SearchEndpoint
-from .titles import TitlesEndpoint
+from imdbapi.endpoints.charts import ChartsEndpoint
+from imdbapi.endpoints.interests import InterestsEndpoint
+from imdbapi.endpoints.names import NamesEndpoint
+from imdbapi.endpoints.search import SearchEndpoint
+from imdbapi.endpoints.titles import TitlesEndpoint
 
 __all__ = [
     "ChartsEndpoint",

@@ -7,8 +7,8 @@ Public API::
     from imdbapi.models import Title, Name, TitleType
 """
 
-from .client import IMDBAPIClient
-from .exceptions import (
+from imdbapi.client import IMDBAPIClient
+from imdbapi.exceptions import (
     IMDBAPIBadRequestError,
     IMDBAPIConnectionError,
     IMDBAPIError,

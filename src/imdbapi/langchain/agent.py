@@ -38,13 +38,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from .tools import create_imdb_tools
+from imdbapi.langchain.tools import create_imdb_tools
 
 if TYPE_CHECKING:
     from langchain_core.language_models import BaseChatModel
     from langgraph.graph.graph import CompiledGraph
 
-    from ..client import IMDBAPIClient
+    from imdbapi.client import IMDBAPIClient
 
 # ---------------------------------------------------------------------------
 # System prompt

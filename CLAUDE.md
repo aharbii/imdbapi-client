@@ -14,7 +14,7 @@ Used by the LangGraph `enrich_imdb` node to enrich movie candidates with live IM
 - **Validation:** Pydantic v2 (response parsing, camelCase → snake_case mapping)
 - **Resilience:** `tenacity` exponential back-off retries (base delay currently 30 s — issue #8)
 - **Auth:** imdbapi.dev requires no authentication key
-- **uv workspace member** of `backend/`
+- **Local dev:** Docker-only via `make` + `docker compose`
 
 ---
 
@@ -38,7 +38,7 @@ Used by the LangGraph `enrich_imdb` node to enrich movie candidates with live IM
 
 | Layer | Stack |
 |---|---|
-| Language | Python 3.13, uv workspace member |
+| Language | Python 3.13, Docker-only local dev |
 | HTTP | `httpx` (async) |
 | Retry | `tenacity` (exponential back-off) |
 | Validation | Pydantic v2 |
@@ -82,11 +82,11 @@ OPENAI_API_KEY, ANTHROPIC_API_KEY   # used only in examples/langchain_agent_exam
 
 ## Pre-commit hooks
 
-`backend/imdbapi/.pre-commit-config.yaml` — install and run from this directory.
+`backend/imdbapi/.pre-commit-config.yaml` — run through the Docker-backed repo
+targets from this directory.
 
 ```bash
-uv run pre-commit install    # once per clone
-uv run pre-commit run --all-files
+make pre-commit
 ```
 
 | Hook | Notes |
@@ -106,12 +106,13 @@ uv run pre-commit run --all-files
 ## VSCode setup
 
 `backend/imdbapi/.vscode/` is committed with a full workspace configuration:
-- `settings.json` — Python interpreter (`backend/.venv` via `../`), Ruff, mypy strict, pytest discovery
-- `extensions.json` — Python, debugpy, Ruff, mypy, TOML, GitLens
-- `launch.json` — `main.py` interactive runner + pytest all / current file
-- `tasks.json` — lint, format, test, test with coverage, pre-commit
+- `settings.json` — attached-container interpreter (`/opt/venv/bin/python`), Ruff, mypy strict, pytest discovery
+- `extensions.json` — Python, debugpy, Ruff, mypy, Remote Containers, Coverage Gutters
+- `launch.json` — `main.py` interactive runner + pytest all / current file from the container
+- `tasks.json` — host-side `make ...` wrappers for build, editor attach, lint, format, test, coverage, pre-commit
 
-**Interpreter:** Run `uv sync --all-packages` from `backend/` — creates `backend/.venv/`
+**Workflow:** start the editor container with `make editor-up`, then attach via
+`Dev Containers: Attach to Running Container...`
 
 ---
 

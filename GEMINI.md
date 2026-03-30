@@ -47,8 +47,9 @@ Async Python client for [imdbapi.dev](https://imdbapi.dev).
 ## VSCode setup
 
 `backend/imdbapi/.vscode/` — full workspace configuration for imdbapi only.
-- Interpreter: `backend/.venv/bin/python` (`uv sync --all-packages` from `backend/`)
-- `launch.json`: `main.py` interactive runner + pytest all/current file
-- `tasks.json`: lint, test, pre-commit (commands run via `cd ..` to workspace root)
+- Interpreter: `/opt/venv/bin/python` inside the attached `imdbapi` container
+- Start the editor container with `make editor-up`, then attach via VS Code Dev Containers
+- `launch.json`: `main.py` interactive runner + pytest all/current file from the container
+- `tasks.json`: host-side `make ...` wrappers for build, editor attach, lint, test, coverage, and pre-commit
 - Modifying configs: keep parity with `backend/.vscode/` aggregate tasks. Update `CLAUDE.md`,
   `GEMINI.md`, `AGENTS.md`, and the repo's `.github/copilot-instructions.md` after.

@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from pydantic import ValidationError
 
+from imdbapi.endpoints.base import BaseEndpoint
 from imdbapi.exceptions import IMDBAPIValidationError
 from imdbapi.models.interest import Interest, ListInterestCategoriesResponse
-from imdbapi.endpoints.base import BaseEndpoint
 
 
 class InterestsEndpoint(BaseEndpoint):

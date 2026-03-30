@@ -6,6 +6,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from imdbapi.endpoints.base import BaseEndpoint
 from imdbapi.exceptions import IMDBAPIValidationError
 from imdbapi.models.name import (
     BatchGetNamesResponse,
@@ -16,7 +17,6 @@ from imdbapi.models.name import (
     Name,
 )
 from imdbapi.pagination import AsyncPaginator
-from imdbapi.endpoints.base import BaseEndpoint
 
 
 class NamesEndpoint(BaseEndpoint):

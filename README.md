@@ -333,7 +333,7 @@ client = IMDBAPIClient(
     base_url="https://api.imdbapi.dev",   # override for local mock servers
     timeout=30.0,                          # total request timeout in seconds
     max_retries=3,                         # set to 1 to disable retries
-    api_key="your-key-if-needed",          # optional X-API-Key header
+    api_key="your-key-if-needed",          # optional X-API-Key header  # pragma: allowlist secret
     debug=True,                            # DEBUG-level request/response logs
 )
 ```

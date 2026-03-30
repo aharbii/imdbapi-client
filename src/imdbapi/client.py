@@ -42,8 +42,6 @@ from tenacity import (
     wait_exponential,
 )
 
-from imdbapi.utils.logger import get_logger
-
 from imdbapi.endpoints.charts import ChartsEndpoint
 from imdbapi.endpoints.interests import InterestsEndpoint
 from imdbapi.endpoints.names import NamesEndpoint
@@ -59,6 +57,7 @@ from imdbapi.exceptions import (
     IMDBAPIServerError,
     IMDBAPITimeoutError,
 )
+from imdbapi.utils.logger import get_logger
 
 _RETRYABLE = (IMDBAPIServerError, IMDBAPIConnectionError, IMDBAPITimeoutError)
 

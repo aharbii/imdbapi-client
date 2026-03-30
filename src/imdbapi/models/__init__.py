@@ -17,7 +17,12 @@ from imdbapi.models.common import (
     PrecisionDate,
     Rating,
 )
-from imdbapi.models.interest import Interest, InterestCategory, InterestRef, ListInterestCategoriesResponse
+from imdbapi.models.interest import (
+    Interest,
+    InterestCategory,
+    InterestRef,
+    ListInterestCategoriesResponse,
+)
 from imdbapi.models.name import (
     BatchGetNamesResponse,
     ListNameFilmographyResponse,

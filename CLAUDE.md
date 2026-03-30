@@ -157,46 +157,20 @@ Conventional Commits: `fix(imdbapi): reduce retry base delay to 2s`
 
 ## Cross-cutting change checklist
 
-### 1. GitHub issues
-- [ ] `aharbii/movie-finder` (parent)
-- [ ] `aharbii/imdbapi-client` linked child issue only if this repo changes
-- [ ] Matching issue/PR templates and a recent example were inspected before filing or editing
+Full detail in `ai-context/issue-agent-briefing-template.md`.
 
-### 2. Branch
-- [ ] Branch in this repo + `chore/` in `backend/` and root `movie-finder`
-- [ ] New standalone issues branch from `main` unless stacking is explicitly requested
-
-### 3. ADR
-- [ ] Retry strategy change, new external dependency, or API contract decision?
-  → `docs/architecture/decisions/ADR-NNN-title.md`
-
-### 4. Implementation and tests
-- [ ] Adapter pattern preserved — no raw HTTP responses exposed
-- [ ] Pydantic model updated if `imdbapi.dev` API schema changed
-- [ ] `ruff` + `mypy --strict` pass
-- [ ] Pre-commit hooks pass
-- [ ] `pytest --asyncio-mode=auto` passes
-
-### 5. Environment and secrets
-- [ ] `.env.example` updated if any new config added
-- [ ] Retry/timeout changes flagged to `chain/` team (SSE timeout budget affected)
-
-### 6. Docker
-- [ ] `Dockerfile` updated if new deps
-- [ ] `docker-compose.yml` if needed
-
-### 7. CI — Jenkins
-- [ ] `.github/workflows/*.yml` and/or `Jenkinsfile` reviewed
-
-### 8. Architecture diagrams (in `docs/` submodule)
-- [ ] **PlantUML** — `08-seq-chat-sse.puml` or `09-seq-langgraph-execution.puml` if timing or interface changed
-  **Never generate `.mdj`**
-- [ ] **Structurizr C4** — `workspace.dsl` if external system relation changed
-
-### 9. Documentation
-- [ ] `README.md` updated (API coverage table, retry config)
-- [ ] `CHANGELOG.md` under `[Unreleased]`
-- [ ] Contributor docs updated when CI, required checks, or merge policy change
+| # | Category | Key gate |
+|---|---|---|
+| 1 | **Issues** | Parent `aharbii/movie-finder` + child here only if this repo changes; templates inspected |
+| 2 | **Branch** | `feature/fix/chore/docs` in this repo + pointer-bump `chore/` in `backend/` and root |
+| 3 | **ADR** | Retry strategy change, new external dep, or API contract decision → ADR in `docs/` |
+| 4 | **Implementation** | Adapter pattern — no raw HTTP responses exposed; Pydantic models updated if `imdbapi.dev` schema changed; `ruff`+`mypy --strict` pass; pre-commit pass |
+| 5 | **Tests** | `pytest --asyncio-mode=auto` passes; coverage doesn't regress |
+| 6 | **Env & secrets** | `.env.example` updated if new config; retry/timeout changes flagged to `chain/` (SSE budget) |
+| 7 | **Docker** | `Dockerfile` updated if new deps; `docker-compose.yml` if needed |
+| 8 | **CI** | `Jenkinsfile` / `.github/workflows/` reviewed |
+| 9 | **Diagrams** | `08-seq-chat-sse.puml` or `09-seq-langgraph-execution.puml` if timing/interface changed; `workspace.dsl` if C4 changed; **never `.mdj`** |
+| 9a | **Docs** | `README.md` + `CHANGELOG.md` updated |
 
 ### 10. Sibling submodules affected
 | Submodule | Why |

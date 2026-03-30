@@ -1,23 +1,15 @@
 // =============================================================================
 // imdbapi-client — Jenkins declarative pipeline
 //
-// Triggers:
-//   • PR validation  — every pull request to main
-//   • Release        — every git tag matching v*
+// Pipeline modes (Jenkins Multibranch Pipeline):
+//   PR build   — every pull request: Lint + Typecheck + Test
+//   Main build — push to main: same as PR + Dockerfile smoke-build
+//   Tag build  — v* tag: same as main build
 //
-// Local / CI contract:
-//   - lint, typecheck, test, coverage, and pre-commit live behind Makefile
-//   - Makefile dispatches into docker compose and the repo-local dev image
+// NOTE: This image is NOT pushed to ACR. imdbapi is an internal Python library
+// imported by the chain; only the backend app image is published to ACR.
 //
-// Required Jenkins credentials:
-//   docker-registry-url  — Docker registry base URL (e.g. ghcr.io/aharbii)
-//
-// Agent requirements:
-//   - Docker Engine
-//   - docker compose plugin
-//
-// Required Jenkins plugins:
-//   Docker Pipeline, JUnit, Cobertura, Credentials Binding
+// Required Jenkins plugins: Docker Pipeline, JUnit, Cobertura, Credentials Binding
 // =============================================================================
 
 pipeline {
@@ -37,17 +29,20 @@ pipeline {
     stages {
 
         // ------------------------------------------------------------------ //
-        stage('Lint + Typecheck') {
+        stage('Initialize') {
             steps {
-                sh '''
-                    set -e
-                    make lint
-                    make typecheck
-                '''
+                sh 'make init'
             }
-            post {
-                always {
-                    sh 'make ci-down || true'
+        }
+
+        // ------------------------------------------------------------------ //
+        stage('Lint + Typecheck') {
+            parallel {
+                stage('Lint') {
+                    steps { sh 'make lint' }
+                }
+                stage('Typecheck') {
+                    steps { sh 'make typecheck' }
                 }
             }
         }
@@ -55,10 +50,7 @@ pipeline {
         // ------------------------------------------------------------------ //
         stage('Test') {
             steps {
-                sh '''
-                    set -e
-                    make coverage
-                '''
+                sh 'make test-coverage'
             }
             post {
                 always {
@@ -66,32 +58,25 @@ pipeline {
                     cobertura coberturaReportFile: 'coverage.xml',
                               onlyStable: false,
                               failNoReports: false
-                    sh 'make ci-down || true'
                 }
             }
         }
 
         // ------------------------------------------------------------------ //
-        stage('Build & Push Image') {
+        // Validate Dockerfile builds correctly on main/tag, without pushing.
+        stage('Build Dockerfile') {
             when {
                 anyOf {
                     branch 'main'
                     buildingTag()
                 }
             }
-            environment {
-                DOCKER_REGISTRY = credentials('docker-registry-url')
-                IMAGE_TAG = "${DOCKER_REGISTRY}/${SERVICE_NAME}:${env.GIT_TAG_NAME ?: env.GIT_COMMIT.take(8)}"
-            }
             steps {
-                sh "docker build --target runtime -t ${IMAGE_TAG} ."
-                sh "docker push ${IMAGE_TAG}"
-
-                script {
-                    if (env.BRANCH_NAME == 'main') {
-                        sh "docker tag ${IMAGE_TAG} ${DOCKER_REGISTRY}/${SERVICE_NAME}:latest"
-                        sh "docker push ${DOCKER_REGISTRY}/${SERVICE_NAME}:latest"
-                    }
+                sh "docker build --target runtime -t ${env.SERVICE_NAME}:ci-${env.BUILD_NUMBER} ."
+            }
+            post {
+                always {
+                    sh "docker rmi ${env.SERVICE_NAME}:ci-${env.BUILD_NUMBER} || true"
                 }
             }
         }
@@ -104,7 +89,7 @@ pipeline {
             cleanWs()
         }
         failure {
-            echo "Pipeline failed on branch ${env.BRANCH_NAME} — check logs above."
+            echo "Pipeline failed on ${env.BRANCH_NAME ?: env.GIT_TAG_NAME ?: 'unknown ref'}."
         }
     }
 }

@@ -5,13 +5,21 @@
 #   make help
 #   make <target>
 #
-# All supported developer commands execute through Docker Compose so local
-# linting, testing, formatting, coverage, and pre-commit do not depend on a
-# host-managed uv environment.
+# All developer commands execute through Docker Compose so linting, testing,
+# formatting, and pre-commit do not depend on a host-managed Python environment.
+#
+# Typical first-time flow:
+#   make init        # build image + create .env + install git hook
+#   make editor-up   # start container for VS Code attach
+#   make check       # lint + typecheck + tests with coverage
+#
+# When the editor container is already running, quality commands (lint, test,
+# etc.) use `docker compose exec` instead of creating a new container — faster
+# than `docker compose run` for interactive development.
 # =============================================================================
 
-.PHONY: help build editor-up editor-down ci-down shell lint format typecheck test \
-	coverage test-coverage pre-commit detect-secrets check init up down logs \
+.PHONY: help build editor-up editor-down ci-down shell lint format fix typecheck test \
+	test-coverage pre-commit detect-secrets check init up down logs \
 	run run-dev setup
 
 .DEFAULT_GOAL := help
@@ -19,106 +27,129 @@
 COMPOSE ?= docker compose
 SERVICE ?= imdbapi
 GIT_DIR_HOST := $(shell git rev-parse --git-dir)
+GIT_HOOKS_DIR := $(GIT_DIR_HOST)/hooks
+
+# Export so docker compose picks it up automatically (avoids per-command prefix).
+export IMDBAPI_GIT_DIR := $(GIT_DIR_HOST)
+
 SOURCE_PATHS := src tests
 COVERAGE_XML ?= coverage.xml
 COVERAGE_HTML ?= htmlcov
 JUNIT_XML ?= test-results.xml
+
+# ---------------------------------------------------------------------------
+# exec when running, run --rm otherwise — avoids container startup overhead
+# for interactive development while remaining correct for CI.
+# ---------------------------------------------------------------------------
+define exec_or_run
+	@if $(COMPOSE) ps --services --status running 2>/dev/null | grep -qx "$(SERVICE)"; then \
+		$(COMPOSE) exec $(SERVICE) $(1); \
+	else \
+		$(COMPOSE) run --rm --no-deps $(SERVICE) $(1); \
+	fi
+endef
 
 help:
 	@echo ""
 	@echo "imdbapi-client — available targets"
 	@echo "=================================="
 	@echo ""
+	@echo "  Setup"
+	@echo "    init           Build image, create .env from template, install git hook"
+	@echo ""
 	@echo "  Editor"
-	@echo "    editor-up      Start only the editor container for VS Code attach"
-	@echo "    editor-down    Stop the editor container and remove compose resources"
-	@echo "    shell          Open a shell in the editor container"
+	@echo "    editor-up      Start the attached-container workspace in the background"
+	@echo "    editor-down    Stop the local workspace container"
+	@echo "    shell          Open a zsh shell in the workspace container"
 	@echo ""
 	@echo "  Lifecycle"
-	@echo "    init           Build the dev image used by Docker Compose"
-	@echo "    up             Start the container in the background (alias for editor-up)"
-	@echo "    down           Stop the container and remove compose resources (alias for editor-down)"
-	@echo "    logs           Follow the container logs"
-	@echo "    ci-down        Full cleanup for CI: stop containers and remove volumes + local images"
+	@echo "    up             Alias for editor-up"
+	@echo "    down           Alias for editor-down"
+	@echo "    logs           Follow workspace container logs"
+	@echo "    ci-down        Full cleanup for CI: stop containers, remove volumes + local images"
 	@echo ""
 	@echo "  Quality"
-	@echo "    lint           Run ruff check inside Docker"
-	@echo "    format         Run ruff format inside Docker"
-	@echo "    typecheck      Run mypy --strict inside Docker"
-	@echo "    test           Run pytest inside Docker"
-	@echo "    test-coverage  Run pytest with coverage + JUnit output inside Docker"
-	@echo "    detect-secrets Run detect-secrets inside Docker"
-	@echo "    pre-commit     Run pre-commit hooks inside Docker"
-	@echo "    check          Convenience alias: lint + typecheck + test"
+	@echo "    lint           Run ruff check (report only)"
+	@echo "    format         Run ruff format (apply)"
+	@echo "    fix            Run ruff check --fix + ruff format (apply all auto-fixes)"
+	@echo "    typecheck      Run mypy --strict"
+	@echo "    test           Run pytest"
+	@echo "    test-coverage  Run pytest with coverage + JUnit output"
+	@echo "    detect-secrets Run detect-secrets scan"
+	@echo "    pre-commit     Run all pre-commit hooks"
+	@echo "    check          lint + typecheck + test-coverage"
 	@echo ""
 	@echo "  Compatibility aliases"
 	@echo "    build          Alias for init"
-	@echo "    run            Alias for up"
-	@echo "    run-dev        Alias for up"
+	@echo "    run / run-dev  Alias for editor-up"
 	@echo "    setup          Alias for init"
 	@echo ""
 
-build:
-	IMDBAPI_GIT_DIR="$(GIT_DIR_HOST)" $(COMPOSE) build $(SERVICE)
+init:
+	@if [ ! -f .env ]; then cp .env.example .env && echo ">>> .env created from .env.example"; fi
+	$(COMPOSE) build $(SERVICE)
+	@printf '#!/bin/sh\nexec make pre-commit\n' > $(GIT_HOOKS_DIR)/pre-commit
+	@chmod +x $(GIT_HOOKS_DIR)/pre-commit
+	@echo ">>> git pre-commit hook installed (calls 'make pre-commit' on every commit)"
 
-init: build
+build: init
+
+setup: init
 
 up: editor-up
 
 down: editor-down
 
 editor-up:
-	IMDBAPI_GIT_DIR="$(GIT_DIR_HOST)" $(COMPOSE) up -d $(SERVICE)
+	$(COMPOSE) up -d $(SERVICE)
 
 editor-down:
-	IMDBAPI_GIT_DIR="$(GIT_DIR_HOST)" $(COMPOSE) down --remove-orphans
+	$(COMPOSE) down --remove-orphans
 
 ci-down:
-	IMDBAPI_GIT_DIR="$(GIT_DIR_HOST)" $(COMPOSE) down -v --rmi local --remove-orphans
+	$(COMPOSE) down -v --rmi local --remove-orphans
 
 logs:
-	IMDBAPI_GIT_DIR="$(GIT_DIR_HOST)" $(COMPOSE) logs -f $(SERVICE)
+	$(COMPOSE) logs -f $(SERVICE)
 
 shell:
-	@if IMDBAPI_GIT_DIR="$(GIT_DIR_HOST)" $(COMPOSE) ps --services --status running | grep -qx "$(SERVICE)"; then \
-		IMDBAPI_GIT_DIR="$(GIT_DIR_HOST)" $(COMPOSE) exec $(SERVICE) sh; \
+	@if $(COMPOSE) ps --services --status running 2>/dev/null | grep -qx "$(SERVICE)"; then \
+		$(COMPOSE) exec $(SERVICE) zsh; \
 	else \
-		IMDBAPI_GIT_DIR="$(GIT_DIR_HOST)" $(COMPOSE) run --rm --build $(SERVICE) sh; \
+		$(COMPOSE) run --rm --no-deps $(SERVICE) zsh; \
 	fi
 
 lint:
-	IMDBAPI_GIT_DIR="$(GIT_DIR_HOST)" $(COMPOSE) run --rm --build --no-deps $(SERVICE) ruff check $(SOURCE_PATHS)
+	$(call exec_or_run,ruff check $(SOURCE_PATHS))
 
 format:
-	IMDBAPI_GIT_DIR="$(GIT_DIR_HOST)" $(COMPOSE) run --rm --build --no-deps $(SERVICE) ruff format $(SOURCE_PATHS)
+	$(call exec_or_run,ruff format $(SOURCE_PATHS))
+
+fix:
+	$(call exec_or_run,ruff check --fix $(SOURCE_PATHS))
+	$(call exec_or_run,ruff format $(SOURCE_PATHS))
 
 typecheck:
-	IMDBAPI_GIT_DIR="$(GIT_DIR_HOST)" $(COMPOSE) run --rm --build --no-deps $(SERVICE) mypy $(SOURCE_PATHS)
+	$(call exec_or_run,mypy $(SOURCE_PATHS))
 
 test:
-	IMDBAPI_GIT_DIR="$(GIT_DIR_HOST)" $(COMPOSE) run --rm --build --no-deps $(SERVICE) \
-		pytest tests/ --asyncio-mode=auto -v --tb=short
+	$(call exec_or_run,pytest tests/ --asyncio-mode=auto -v --tb=short)
 
-coverage:
-	IMDBAPI_GIT_DIR="$(GIT_DIR_HOST)" $(COMPOSE) run --rm --build --no-deps $(SERVICE) \
-		pytest tests/ --asyncio-mode=auto -v --tb=short \
+test-coverage:
+	$(call exec_or_run,pytest tests/ --asyncio-mode=auto -v --tb=short \
+		--junitxml=$(JUNIT_XML) \
 		--cov=src \
 		--cov-report=term-missing \
 		--cov-report=xml:$(COVERAGE_XML) \
-		--cov-report=html:$(COVERAGE_HTML) \
-		--junitxml=$(JUNIT_XML)
-
-test-coverage: coverage
+		--cov-report=html:$(COVERAGE_HTML))
 
 detect-secrets:
-	IMDBAPI_GIT_DIR="$(GIT_DIR_HOST)" $(COMPOSE) run --rm --build --no-deps $(SERVICE) \
-		detect-secrets scan --baseline .secrets.baseline
+	$(call exec_or_run,detect-secrets scan --baseline .secrets.baseline) # pragma: allowlist secret
 
 pre-commit:
-	IMDBAPI_GIT_DIR="$(GIT_DIR_HOST)" $(COMPOSE) run --rm --build --no-deps $(SERVICE) pre-commit run --all-files
+	$(call exec_or_run,pre-commit run --all-files)
 
-check: lint typecheck test
+check: lint typecheck test-coverage
 
-run: up
-run-dev: up
-setup: init
+run: editor-up
+run-dev: editor-up

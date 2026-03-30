@@ -7,6 +7,7 @@ and a ``respx.MockRouter`` anchored to the API base URL.
 
 from __future__ import annotations
 
+from collections.abc import Generator
 from typing import Any
 
 import pytest
@@ -34,7 +35,7 @@ def client() -> IMDBAPIClient:
 
 
 @pytest.fixture
-def mock_router() -> respx.MockRouter:
+def mock_router() -> Generator[respx.MockRouter]:
     """Yield an active RESPX mock router scoped to the API base URL.
 
     Usage::

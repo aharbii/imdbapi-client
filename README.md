@@ -104,9 +104,8 @@ pip install git+https://github.com/aharbii/imdbapi-client
 ### For contributors (Docker-only)
 
 ```bash
-cp .env.example .env
-make init
-make editor-up
+make init       # build dev image, create .env from template, install git pre-commit hook
+make editor-up  # start container for VS Code attach
 ```
 
 ---
@@ -353,17 +352,18 @@ Python interpreter or `uv` installation to develop on this project.
 ### Common commands
 
 ```bash
-make init           # build dev image
+make init           # build dev image, create .env from template, install git hook
 make editor-up      # start container for VS Code attach
-make shell          # shell into the container
-make lint           # ruff check
+make shell          # open zsh shell in the container
+make lint           # ruff check (report only)
+make fix            # ruff check --fix + ruff format (auto-apply)
 make format         # ruff format
 make typecheck      # mypy --strict (covers src + tests)
 make test           # pytest
-make test-coverage  # pytest with coverage report
+make test-coverage  # pytest + coverage XML/HTML + JUnit report
 make detect-secrets # standalone secret scan
-make pre-commit     # mirrored repo hooks
-make check          # lint + typecheck + test
+make pre-commit     # full hook suite (also enforced on git commit)
+make check          # lint + typecheck + test-coverage (CI gate)
 make ci-down        # full cleanup (volumes + images)
 ```
 

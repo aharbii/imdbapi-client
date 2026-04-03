@@ -140,7 +140,7 @@ async def demo_custom_tools() -> None:
 
         result = await agent.ainvoke(
             {"messages": [("human", "Who played the Joker in The Dark Knight?")]}
-        )
+        )  # type: ignore[call-overload]
 
     print(f"\nAgent: {result['messages'][-1].content}")
 

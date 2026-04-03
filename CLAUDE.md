@@ -15,6 +15,7 @@ Used by the LangGraph `enrich_imdb` node to enrich movie candidates with live IM
 - **Resilience:** `tenacity` exponential back-off retries (base delay currently 30 s — issue #8)
 - **Auth:** imdbapi.dev requires no authentication key
 - **Local dev:** Docker-only via `make` + `docker compose`
+- **Lifecycle:** Standalone `uv` project with its own `uv.lock`
 
 ---
 

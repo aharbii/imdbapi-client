@@ -3,6 +3,8 @@
 Async IMDb REST client for Movie Finder. Wraps the external IMDb API, handles retries,
 and maps raw responses to internal domain types. Used by the `chain/` LangGraph pipeline.
 
+This package is a **standalone uv project** with its own lifecycle and `uv.lock`.
+
 Parent project: `aharbii/movie-finder` — all issues created there first, then linked here.
 
 ---
@@ -32,6 +34,7 @@ Parent project: `aharbii/movie-finder` — all issues created there first, then 
 |---|---|
 | **Adapter** | Client wraps the external IMDb API and maps to internal domain types. Callers never see raw HTTP. |
 | **Configuration object** | All env vars (API key, base URL, timeouts, retry config) loaded once in `config.py` via Pydantic `BaseSettings`. |
+| **PEP 695** | Modern type parameter syntax for Python 3.13. |
 
 ---
 

@@ -47,6 +47,7 @@ repos:
           - httpx
           - tenacity
           - langchain-core
+          - langchain
           - respx
           - pytest
         args: [--config-file=pyproject.toml]

@@ -20,9 +20,9 @@ services:
       - sleep
       - infinity
     environment:
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       GIT_DIR: /workspace/.gitdir
       GIT_WORK_TREE: /workspace
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     volumes:
       - .:/workspace

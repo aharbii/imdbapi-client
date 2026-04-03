@@ -7,6 +7,7 @@ test, typecheck, test-coverage, pre-commit) execute through the provided `Makefi
 Host-managed Python environments are not supported for development.
 
 Built with:
+
 - **[httpx](https://www.python-httpx.org/)** — async HTTP with connection pooling
 - **[Pydantic v2](https://docs.pydantic.dev/)** — response validation & camelCase → snake_case mapping
 - **[tenacity](https://tenacity.readthedocs.io/)** — configurable exponential back-off retries
@@ -196,58 +197,58 @@ Logs go to both stdout and timestamped log files under `./logs/`.
 
 ### Titles (`client.titles`)
 
-| Method | Endpoint |
-|--------|----------|
-| `get(title_id)` | `GET /titles/{titleId}` |
-| `list(**filters)` | `GET /titles` |
-| `list_pages(**filters)` | auto-paginated `GET /titles` |
-| `batch_get(title_ids)` | `GET /titles:batchGet` |
-| `get_credits(title_id)` | `GET /titles/{titleId}/credits` |
-| `get_credits_pages(title_id)` | auto-paginated credits |
-| `get_release_dates(title_id)` | `GET /titles/{titleId}/releaseDates` |
-| `get_akas(title_id)` | `GET /titles/{titleId}/akas` |
-| `get_seasons(title_id)` | `GET /titles/{titleId}/seasons` |
-| `get_episodes(title_id, season=…)` | `GET /titles/{titleId}/episodes` |
-| `get_episodes_pages(title_id)` | auto-paginated episodes |
-| `get_images(title_id)` | `GET /titles/{titleId}/images` |
-| `get_videos(title_id)` | `GET /titles/{titleId}/videos` |
-| `get_award_nominations(title_id)` | `GET /titles/{titleId}/awardNominations` |
-| `get_parents_guide(title_id)` | `GET /titles/{titleId}/parentsGuide` |
-| `get_certificates(title_id)` | `GET /titles/{titleId}/certificates` |
-| `get_company_credits(title_id)` | `GET /titles/{titleId}/companyCredits` |
-| `get_box_office(title_id)` | `GET /titles/{titleId}/boxOffice` |
+| Method                             | Endpoint                                 |
+| ---------------------------------- | ---------------------------------------- |
+| `get(title_id)`                    | `GET /titles/{titleId}`                  |
+| `list(**filters)`                  | `GET /titles`                            |
+| `list_pages(**filters)`            | auto-paginated `GET /titles`             |
+| `batch_get(title_ids)`             | `GET /titles:batchGet`                   |
+| `get_credits(title_id)`            | `GET /titles/{titleId}/credits`          |
+| `get_credits_pages(title_id)`      | auto-paginated credits                   |
+| `get_release_dates(title_id)`      | `GET /titles/{titleId}/releaseDates`     |
+| `get_akas(title_id)`               | `GET /titles/{titleId}/akas`             |
+| `get_seasons(title_id)`            | `GET /titles/{titleId}/seasons`          |
+| `get_episodes(title_id, season=…)` | `GET /titles/{titleId}/episodes`         |
+| `get_episodes_pages(title_id)`     | auto-paginated episodes                  |
+| `get_images(title_id)`             | `GET /titles/{titleId}/images`           |
+| `get_videos(title_id)`             | `GET /titles/{titleId}/videos`           |
+| `get_award_nominations(title_id)`  | `GET /titles/{titleId}/awardNominations` |
+| `get_parents_guide(title_id)`      | `GET /titles/{titleId}/parentsGuide`     |
+| `get_certificates(title_id)`       | `GET /titles/{titleId}/certificates`     |
+| `get_company_credits(title_id)`    | `GET /titles/{titleId}/companyCredits`   |
+| `get_box_office(title_id)`         | `GET /titles/{titleId}/boxOffice`        |
 
 ### Names (`client.names`)
 
-| Method | Endpoint |
-|--------|----------|
-| `get(name_id)` | `GET /names/{nameId}` |
-| `batch_get(name_ids)` | `GET /names:batchGet` |
-| `get_images(name_id)` | `GET /names/{nameId}/images` |
-| `get_filmography(name_id)` | `GET /names/{nameId}/filmography` |
-| `get_filmography_pages(name_id)` | auto-paginated filmography |
-| `get_relationships(name_id)` | `GET /names/{nameId}/relationships` |
-| `get_trivia(name_id)` | `GET /names/{nameId}/trivia` |
+| Method                           | Endpoint                            |
+| -------------------------------- | ----------------------------------- |
+| `get(name_id)`                   | `GET /names/{nameId}`               |
+| `batch_get(name_ids)`            | `GET /names:batchGet`               |
+| `get_images(name_id)`            | `GET /names/{nameId}/images`        |
+| `get_filmography(name_id)`       | `GET /names/{nameId}/filmography`   |
+| `get_filmography_pages(name_id)` | auto-paginated filmography          |
+| `get_relationships(name_id)`     | `GET /names/{nameId}/relationships` |
+| `get_trivia(name_id)`            | `GET /names/{nameId}/trivia`        |
 
 ### Interests (`client.interests`)
 
-| Method | Endpoint |
-|--------|----------|
-| `list_categories()` | `GET /interests` |
-| `get(interest_id)` | `GET /interests/{interestId}` |
+| Method              | Endpoint                      |
+| ------------------- | ----------------------------- |
+| `list_categories()` | `GET /interests`              |
+| `get(interest_id)`  | `GET /interests/{interestId}` |
 
 ### Search (`client.search`)
 
-| Method | Endpoint |
-|--------|----------|
+| Method                   | Endpoint             |
+| ------------------------ | -------------------- |
 | `titles(query, limit=…)` | `GET /search/titles` |
 
 ### Charts (`client.charts`)
 
-| Method | Endpoint |
-|--------|----------|
-| `starmeter(page_token=…)` | `GET /chart/starmeter` |
-| `starmeter_pages()` | auto-paginated starmeter |
+| Method                    | Endpoint                 |
+| ------------------------- | ------------------------ |
+| `starmeter(page_token=…)` | `GET /chart/starmeter`   |
+| `starmeter_pages()`       | auto-paginated starmeter |
 
 ---
 
@@ -354,7 +355,7 @@ Python interpreter or `uv` installation to develop on this project.
 ```bash
 make init           # build dev image, create .env from template, install git hook
 make editor-up      # start container for VS Code attach
-make shell          # open zsh shell in the container
+make shell          # open bash shell in the container
 make lint           # ruff check (report only)
 make fix            # ruff check --fix + ruff format (auto-apply)
 make format         # ruff format
@@ -386,6 +387,7 @@ make test-coverage
 ```
 
 To run a specific test from within the container:
+
 ```bash
 pytest tests/test_titles.py -v -k "test_get"
 ```
@@ -397,11 +399,11 @@ pytest tests/test_titles.py -v -k "test_get"
 This repository uses a multi-stage `Dockerfile` to ensure environment parity
 across development and production.
 
-| Stage | Purpose |
-|-------|---------|
-| `dev` | Local development (includes lint/test tools) |
-| `builder` | Dependency synchronization |
-| `runtime` | Lean production image |
+| Stage     | Purpose                                      |
+| --------- | -------------------------------------------- |
+| `dev`     | Local development (includes lint/test tools) |
+| `builder` | Dependency synchronization                   |
+| `runtime` | Lean production image                        |
 
 ---
 

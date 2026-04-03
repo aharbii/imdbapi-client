@@ -12,7 +12,7 @@ Usage example::
 from __future__ import annotations
 
 from collections.abc import AsyncIterator, Callable, Coroutine
-from typing import Any, Generic, Protocol, TypeVar
+from typing import Any, Protocol, TypeVar
 
 
 class _PagedResponse(Protocol):
@@ -28,7 +28,7 @@ PageT = TypeVar("PageT", bound=_PagedResponse)
 FetchFunc = Callable[..., Coroutine[Any, Any, PageT]]
 
 
-class AsyncPaginator(Generic[PageT]):
+class AsyncPaginator[PageT: _PagedResponse]:
     """Generic async iterator that follows ``nextPageToken`` cursors.
 
     Parameters

@@ -18,9 +18,10 @@
 # than `docker compose run` for interactive development.
 # =============================================================================
 
-.PHONY: help build editor-up editor-down ci-down shell lint format fix typecheck test \
-	test-coverage pre-commit detect-secrets check init up down logs \
-	run run-dev setup
+.PHONY: help init build setup clean \
+	editor-up editor-down ci-down shell logs up down  run run-dev \
+	lint format fix typecheck test test-coverage pre-commit detect-secrets check \
+	agent
 
 .DEFAULT_GOAL := help
 
@@ -32,7 +33,7 @@ GIT_HOOKS_DIR := $(GIT_DIR_HOST)/hooks
 # Export so docker compose picks it up automatically (avoids per-command prefix).
 export IMDBAPI_GIT_DIR := $(GIT_DIR_HOST)
 
-SOURCE_PATHS := src tests
+SOURCE_PATHS := .
 COVERAGE_XML ?= coverage.xml
 COVERAGE_HTML ?= htmlcov
 JUNIT_XML ?= test-results.xml
@@ -60,7 +61,7 @@ help:
 	@echo "  Editor"
 	@echo "    editor-up      Start the attached-container workspace in the background"
 	@echo "    editor-down    Stop the local workspace container"
-	@echo "    shell          Open a zsh shell in the workspace container"
+	@echo "    shell          Open a bash shell in the workspace container"
 	@echo ""
 	@echo "  Lifecycle"
 	@echo "    up             Alias for editor-up"
@@ -79,10 +80,16 @@ help:
 	@echo "    pre-commit     Run all pre-commit hooks"
 	@echo "    check          lint + typecheck + test-coverage"
 	@echo ""
+	@echo "  Maintenance"
+	@echo "    clean          Remove __pycache__, .pytest_cache, .mypy_cache, reports"
+	@echo ""
 	@echo "  Compatibility aliases"
 	@echo "    build          Alias for init"
 	@echo "    run / run-dev  Alias for editor-up"
 	@echo "    setup          Alias for init"
+	@echo ""
+	@echo "  Apps"
+	@echo "    agent          Runs LangChain Agent Example"
 	@echo ""
 
 init:
@@ -93,30 +100,31 @@ init:
 	@echo ">>> git pre-commit hook installed (calls 'make pre-commit' on every commit)"
 
 build: init
-
 setup: init
-
-up: editor-up
-
-down: editor-down
 
 editor-up:
 	$(COMPOSE) up -d $(SERVICE)
 
+up: editor-up
+run: editor-up
+run-dev: editor-up
+
 editor-down:
 	$(COMPOSE) down --remove-orphans
 
+down: editor-down
+
 ci-down:
-	$(COMPOSE) down -v --rmi local --remove-orphans
+	$(COMPOSE) down -v --remove-orphans
 
 logs:
 	$(COMPOSE) logs -f $(SERVICE)
 
 shell:
 	@if $(COMPOSE) ps --services --status running 2>/dev/null | grep -qx "$(SERVICE)"; then \
-		$(COMPOSE) exec $(SERVICE) zsh; \
+		$(COMPOSE) exec $(SERVICE) bash; \
 	else \
-		$(COMPOSE) run --rm --no-deps $(SERVICE) zsh; \
+		$(COMPOSE) run --rm --no-deps $(SERVICE) bash; \
 	fi
 
 lint:
@@ -151,5 +159,17 @@ pre-commit:
 
 check: lint typecheck test-coverage
 
-run: editor-up
-run-dev: editor-up
+clean:
+	@echo ">>> Removing Python cache files..."
+	find . -type d -name "__pycache__" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name ".pytest_cache" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name ".mypy_cache" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name ".ruff_cache" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true
+	find . -name "*.egg-info" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true
+	find . -name "coverage.xml" -not -path "./.git/*" -delete 2>/dev/null || true
+	find . -name "test-results.xml" -not -path "./.git/*" -delete 2>/dev/null || true
+	find . -type d -name "htmlcov" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true
+	@echo "Clean complete."
+
+agent:
+	$(call exec_or_run,python examples/langchain_agent_example.py)

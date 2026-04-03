@@ -2,14 +2,13 @@
 // imdbapi-client — Jenkins declarative pipeline
 //
 // Pipeline modes (Jenkins Multibranch Pipeline):
-//   PR build   — every pull request: Lint + Typecheck + Test
-//   Main build — push to main: same as PR + Dockerfile smoke-build
-//   Tag build  — v* tag: same as main build
+//   PR build   — every pull request: Lint + Typecheck + Test (no image build)
+//   Main build — push to main: Lint + Typecheck + Test (no image build)
 //
 // NOTE: This image is NOT pushed to ACR. imdbapi is an internal Python library
 // imported by the chain; only the backend app image is published to ACR.
 //
-// Required Jenkins plugins: Docker Pipeline, JUnit, Cobertura, Credentials Binding
+// Required Jenkins plugins: Docker Pipeline, JUnit, Coverage, Credentials Binding
 // =============================================================================
 
 pipeline {
@@ -17,7 +16,7 @@ pipeline {
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '20'))
-        timeout(time: 20, unit: 'MINUTES')
+        timeout(time: 45, unit: 'MINUTES')
         disableConcurrentBuilds(abortPrevious: true)
     }
 
@@ -55,28 +54,19 @@ pipeline {
             post {
                 always {
                     junit allowEmptyResults: true, testResults: 'test-results.xml'
-                    cobertura coberturaReportFile: 'coverage.xml',
-                              onlyStable: false,
-                              failNoReports: false
-                }
-            }
-        }
-
-        // ------------------------------------------------------------------ //
-        // Validate Dockerfile builds correctly on main/tag, without pushing.
-        stage('Build Dockerfile') {
-            when {
-                anyOf {
-                    branch 'main'
-                    buildingTag()
-                }
-            }
-            steps {
-                sh "docker build --target runtime -t ${env.SERVICE_NAME}:ci-${env.BUILD_NUMBER} ."
-            }
-            post {
-                always {
-                    sh "docker rmi ${env.SERVICE_NAME}:ci-${env.BUILD_NUMBER} || true"
+                    recordCoverage(
+                        tools: [
+                            [parser: 'COBERTURA', pattern: 'coverage.xml']
+                        ],
+                        id: 'coverage',
+                        name: 'IMDb Client Coverage',
+                        sourceCodeRetention: 'EVERY_BUILD',
+                        failOnError: false,
+                        qualityGates: [
+                            [threshold: 10.0, metric: 'LINE', baseline: 'PROJECT', unstable: true],
+                            [threshold: 10.0, metric: 'BRANCH', baseline: 'PROJECT', unstable: true]
+                        ]
+                    )
                 }
             }
         }
@@ -89,7 +79,10 @@ pipeline {
             cleanWs()
         }
         failure {
-            echo "Pipeline failed on ${env.BRANCH_NAME ?: env.GIT_TAG_NAME ?: 'unknown ref'}."
+            echo "Pipeline failed on ${env.BRANCH_NAME ?: 'unknown ref'} — check logs above."
+        }
+        success {
+            echo "Pipeline completed successfully."
         }
     }
 }

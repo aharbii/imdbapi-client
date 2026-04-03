@@ -129,7 +129,11 @@ async def demo_custom_tools() -> None:
         ]
 
         agent = create_agent(
-            ChatAnthropic(model="claude-opus-4-6"),
+            ChatAnthropic(
+                model="claude-3-5-sonnet-20240620",
+                timeout=None,
+                stop=None,
+            ),
             tools,
             system_prompt=MOVIE_AGENT_SYSTEM_PROMPT,
         )

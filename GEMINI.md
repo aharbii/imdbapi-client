@@ -9,12 +9,14 @@ Async Python client for [imdbapi.dev](https://imdbapi.dev).
 - **HTTP:** `httpx` (async)
 - **Validation:** Pydantic v2
 - **Resilience:** `tenacity` retries
+- **Lifecycle:** Standalone `uv` project with its own `uv.lock`.
 
 ---
 
 ## Design patterns
 - **Adapter pattern:** Wraps raw REST responses into domain types.
 - **Resilience:** Exponential back-off (Issue #8: coordinate delay changes with SSE).
+- **PEP 695:** Modern type parameter syntax for Python 3.13.
 
 ---
 

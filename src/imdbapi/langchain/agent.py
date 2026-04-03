@@ -180,7 +180,7 @@ def create_movie_agent(
         try:
             from langchain_anthropic import ChatAnthropic
 
-            llm = ChatAnthropic(model_name=model_name)
+            llm = ChatAnthropic(model=model_name)
         except ImportError as exc:
             raise ImportError(
                 "langchain-anthropic is required when llm=None. "
@@ -244,7 +244,7 @@ def make_anthropic_agent(
             "langchain-anthropic is required. Install it with: uv sync --group agents-anthropic"
         ) from exc
 
-    llm = ChatAnthropic(model_name=model)
+    llm = ChatAnthropic(model=model)
     return create_movie_agent(client, llm=llm, **kwargs)
 
 

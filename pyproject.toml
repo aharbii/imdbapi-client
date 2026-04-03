@@ -2,8 +2,9 @@
 name = "imdbapi-client"
 version = "0.1.0"
 description = "Production-ready async Python client for imdbapi.dev — free IMDb REST API"
-requires-python = ">=3.13"
 license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.13"
 keywords = ["imdb", "movies", "api", "client", "async"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -14,17 +15,10 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Typing :: Typed",
 ]
-dependencies = [
-    "httpx>=0.28.0",
-    "pydantic>=2.10.0",
-    "tenacity>=9.0.0",
-]
+dependencies = ["httpx>=0.28.0", "pydantic>=2.12.5", "tenacity>=9.0.0"]
 
 [dependency-groups]
-lint = [
-    "ruff>=0.9.0",
-    "mypy>=1.14.0",
-]
+lint = ["ruff>=0.9.0", "mypy>=1.15.0"]
 test = [
     "pytest>=8.3.0",
     "pytest-asyncio>=0.25.0",
@@ -33,13 +27,12 @@ test = [
     "pytest-cov>=6.0.0",
 ]
 dev = [
-    "pre-commit>=4.0.0",
     { include-group = "lint" },
     { include-group = "test" },
+    "pre-commit>=4.2.0",
+    "detect-secrets>=1.5.0",
 ]
-# AI agent integrations — install the LLM provider you use:
-#   uv sync --group agents-anthropic   (Claude)
-#   uv sync --group agents-openai      (GPT)
+
 agents-anthropic = [
     "langchain-core>=0.3.0",
     "langchain-anthropic>=0.3.0",
@@ -77,48 +70,42 @@ line-length = 100
 src = ["src", "tests"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "UP", "B", "C4", "SIM"]
-ignore = ["E501", "N818", "UP046"]
+select = ["E", "W", "F", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["imdbapi"]
 
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
 [tool.mypy]
 python_version = "3.13"
+mypy_path = "src"
 strict = true
+explicit_package_bases = true
+namespace_packages = true
 ignore_missing_imports = true
 warn_return_any = true
 warn_unused_ignores = true
-mypy_path = "src"
-explicit_package_bases = true
-namespace_packages = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+# TitlesEndpoint has a method named `list` which mypy confuses with the builtin
+# `list` type in class body annotations, even with `from __future__ import annotations`.
+module = "imdbapi.endpoints.titles"
+disable_error_code = ["valid-type"]
 
 [[tool.mypy.overrides]]
 # pytest fixtures and marks are not fully typed; relax decorator checks for tests
 module = "tests.*"
 disallow_untyped_decorators = false
 
-[[tool.mypy.overrides]]
-# TitlesEndpoint has a method named `list` which shadows the builtin in class body
-# annotations, even with `from __future__ import annotations`.
-module = "imdbapi.endpoints.titles"
-disable_error_code = ["valid-type"]
-
-[[tool.mypy.overrides]]
-# langchain_core stubs are incomplete — BaseTool resolves to Any, which causes
-# "Class cannot subclass X (has type Any)" on every tool class definition.
-module = "imdbapi.langchain.tools"
-disable_error_code = ["misc"]
-
-[[tool.mypy.overrides]]
-# langchain_anthropic stubs require `timeout` and `stop` as positional args in
-# one overload; at runtime these are optional kwargs. Suppress the false positive.
-module = "imdbapi.langchain.agent"
-disable_error_code = ["call-arg"]
-
 [tool.pytest.ini_options]
-asyncio_mode = "auto"
+pythonpath = ["src"]
 testpaths = ["tests"]
+asyncio_mode = "auto"
 addopts = ["-v", "--tb=short"]
 
 [tool.coverage.run]

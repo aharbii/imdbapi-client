@@ -98,6 +98,13 @@ module = "imdbapi.endpoints.titles"
 disable_error_code = ["valid-type"]
 
 [[tool.mypy.overrides]]
+# langchain_anthropic stubs require `timeout` and `stop` as positional args in
+# one overload; at runtime these are optional kwargs. Suppress the false positive
+# across the imdbapi agent that instantiates ChatAnthropic.
+module = "imdbapi.langchain.agent"
+disable_error_code = ["call-arg"]
+
+[[tool.mypy.overrides]]
 # pytest fixtures and marks are not fully typed; relax decorator checks for tests
 module = "tests.*"
 disallow_untyped_decorators = false

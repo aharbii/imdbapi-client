@@ -36,7 +36,7 @@ export IMDBAPI_GIT_DIR := $(GIT_DIR_HOST)
 SOURCE_PATHS := .
 COVERAGE_XML ?= coverage.xml
 COVERAGE_HTML ?= htmlcov
-JUNIT_XML ?= test-results.xml
+JUNIT_XML ?= junit.xml
 
 # ---------------------------------------------------------------------------
 # exec when running, run --rm otherwise — avoids container startup overhead

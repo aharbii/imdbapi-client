@@ -153,7 +153,7 @@ test-coverage:
 		--cov-report=html:$(COVERAGE_HTML))
 
 detect-secrets:
-	$(call exec_or_run,detect-secrets scan --baseline .secrets.baseline) # pragma: allowlist secret
+	$(call exec_or_run,detect-secrets scan --baseline .secrets.baseline)
 
 pre-commit:
 	$(call exec_or_run,pre-commit run --all-files)

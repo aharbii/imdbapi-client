@@ -173,7 +173,7 @@ def create_movie_agent(
         from langchain.agents import create_agent
     except ImportError as exc:
         raise ImportError(
-            "langchain is required. Install it with: uv sync --group agents-anthropic"
+            "langchain is required. Install it with the package dependencies for this repo."
         ) from exc
 
     if llm is None:

@@ -21,6 +21,8 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- The movie agent factory now uses the supported public
+  `langchain.agents.create_agent` API instead of a deprecated LangGraph helper
 - **Package Restructuring:** Moved `src/utils` to `src/imdbapi/utils` to resolve global namespace pollution
 - **Import Refactoring:** Converted all internal relative imports to absolute `imdbapi.*` paths
 - **Quality Gate Expansion:** `make typecheck` now enforces strict typing across both `src/` and `tests/`

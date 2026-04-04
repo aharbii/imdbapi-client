@@ -4,7 +4,7 @@
 # Targets:
 #   dev      Attached-container image used by docker-compose.yml and VS Code
 #   builder  Intermediate dependency synchronization stage
-#   runtime  Production image used by Jenkins
+#   runtime  Minimal smoke-test image
 # =============================================================================
 
 FROM python:3.13-slim AS uv-base
@@ -37,7 +37,7 @@ ENV PATH="/opt/venv/bin:$PATH" \
 COPY pyproject.toml uv.lock ./
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --all-groups --active --no-install-project --no-install-workspace
+    uv sync --all-groups --active --no-install-project --no-install-workspace
 
 CMD ["sleep", "infinity"]
 
@@ -50,9 +50,9 @@ WORKDIR /build
 COPY pyproject.toml uv.lock ./
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-editable --no-install-project
+    uv sync --frozen --no-dev --no-install-project --no-install-workspace
 
-COPY src src/
+COPY src/ src/
 COPY main.py ./
 
 
@@ -60,9 +60,7 @@ COPY main.py ./
 FROM python:3.13-slim AS runtime
 
 LABEL org.opencontainers.image.title="imdbapi-client"
-LABEL org.opencontainers.image.source="https://github.com/aharbii/imdbapi-client"
 LABEL org.opencontainers.image.description="Async IMDb REST API client"
-LABEL org.opencontainers.image.licenses="MIT"
 
 RUN useradd --system --uid 1001 --no-create-home appuser
 

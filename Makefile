@@ -21,7 +21,7 @@
 .PHONY: help init build setup clean \
 	editor-up editor-down ci-down shell logs up down  run run-dev \
 	lint format fix typecheck test test-coverage pre-commit detect-secrets check \
-	agent
+	agent clean-docker
 
 .DEFAULT_GOAL := help
 
@@ -81,7 +81,8 @@ help:
 	@echo "    check          lint + typecheck + test-coverage"
 	@echo ""
 	@echo "  Maintenance"
-	@echo "    clean          Remove __pycache__, .pytest_cache, .mypy_cache, reports"
+	@echo "    clean          Remove __pycache__, .pytest_cache, .mypy_cache, reports (via Docker)"
+	@echo "    clean-docker   Stop containers, remove volumes + local images"
 	@echo ""
 	@echo "  Compatibility aliases"
 	@echo "    build          Alias for init"
@@ -146,7 +147,7 @@ test:
 test-coverage:
 	$(call exec_or_run,pytest tests/ --asyncio-mode=auto -v --tb=short \
 		--junitxml=$(JUNIT_XML) \
-		--cov=src \
+		--cov=imdbapi \
 		--cov-report=term-missing \
 		--cov-report=xml:$(COVERAGE_XML) \
 		--cov-report=html:$(COVERAGE_HTML))
@@ -160,16 +161,18 @@ pre-commit:
 check: lint typecheck test-coverage
 
 clean:
-	@echo ">>> Removing Python cache files..."
-	find . -type d -name "__pycache__" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true
-	find . -type d -name ".pytest_cache" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true
-	find . -type d -name ".mypy_cache" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true
-	find . -type d -name ".ruff_cache" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true
-	find . -name "*.egg-info" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true
-	find . -name "coverage.xml" -not -path "./.git/*" -delete 2>/dev/null || true
-	find . -name "test-results.xml" -not -path "./.git/*" -delete 2>/dev/null || true
-	find . -type d -name "htmlcov" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true
+	@echo ">>> Removing Python cache files (via Docker)..."
+	$(call exec_or_run,find . -type d -name "__pycache__" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true)
+	$(call exec_or_run,find . -type d -name ".pytest_cache" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true)
+	$(call exec_or_run,find . -type d -name ".mypy_cache" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true)
+	$(call exec_or_run,find . -type d -name ".ruff_cache" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true)
+	$(call exec_or_run,find . -name "*.egg-info" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true)
+	$(call exec_or_run,find . -name "$(COVERAGE_XML)" -not -path "./.git/*" -delete 2>/dev/null || true)
+	$(call exec_or_run,find . -name "$(JUNIT_XML)" -not -path "./.git/*" -delete 2>/dev/null || true)
+	$(call exec_or_run,find . -type d -name "$(COVERAGE_HTML)" -not -path "./.git/*" -exec rm -rf {} + 2>/dev/null || true)
 	@echo "Clean complete."
+
+clean-docker: ci-down
 
 agent:
 	$(call exec_or_run,python examples/langchain_agent_example.py)

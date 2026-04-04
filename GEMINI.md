@@ -1,11 +1,13 @@
 # Gemini CLI — imdbapi submodule
 
-Foundational mandate for `imdbapi-client` (`backend/imdbapi/`).
+Foundational mandate for `imdbapi-client` (`backend/chain/imdbapi/`).
 
 ---
 
 ## What this submodule does
+
 Async Python client for [imdbapi.dev](https://imdbapi.dev).
+
 - **HTTP:** `httpx` (async)
 - **Validation:** Pydantic v2
 - **Resilience:** `tenacity` retries
@@ -14,6 +16,7 @@ Async Python client for [imdbapi.dev](https://imdbapi.dev).
 ---
 
 ## Design patterns
+
 - **Adapter pattern:** Wraps raw REST responses into domain types.
 - **Resilience:** Exponential back-off (Issue #8: coordinate delay changes with SSE).
 - **PEP 695:** Modern type parameter syntax for Python 3.13.
@@ -21,6 +24,7 @@ Async Python client for [imdbapi.dev](https://imdbapi.dev).
 ---
 
 ## Coding standards
+
 - `mypy --strict` passes.
 - No raw `dict` returned — use Pydantic models.
 - Async all the way.
@@ -48,7 +52,8 @@ Async Python client for [imdbapi.dev](https://imdbapi.dev).
 
 ## VSCode setup
 
-`backend/imdbapi/.vscode/` — full workspace configuration for imdbapi only.
+`backend/chain/imdbapi/.vscode/` — full workspace configuration for imdbapi only.
+
 - Interpreter: `/opt/venv/bin/python` inside the attached `imdbapi` container
 - Start the editor container with `make editor-up`, then attach via VS Code Dev Containers
 - `launch.json`: `main.py` interactive runner + pytest all/current file from the container

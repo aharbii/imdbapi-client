@@ -1,6 +1,6 @@
 # Claude Code — imdbapi submodule
 
-This is **`imdbapi-client`** (`backend/imdbapi/`) — part of the Movie Finder project.
+This is **`imdbapi-client`** (`backend/chain/imdbapi/`) — part of the Movie Finder project.
 GitHub repo: `aharbii/imdbapi-client` · Parent repo: `aharbii/movie-finder`
 
 ---
@@ -23,33 +23,34 @@ Used by the LangGraph `enrich_imdb` node to enrich movie candidates with live IM
 
 ### Submodule map
 
-| Path | GitHub repo | Role |
-|---|---|---|
-| `.` (root) | `aharbii/movie-finder` | Parent — all cross-repo issues |
-| `backend/` | `aharbii/movie-finder-backend` | FastAPI + uv workspace root |
-| `backend/app/` | (nested in backend) | FastAPI application layer |
-| `backend/chain/` | `aharbii/movie-finder-chain` | LangGraph 8-node AI pipeline |
-| `backend/imdbapi/` | `aharbii/imdbapi-client` | **← you are here** |
-| `backend/rag_ingestion/` | `aharbii/movie-finder-rag` | Offline embedding ingestion |
-| `frontend/` | `aharbii/movie-finder-frontend` | Angular 21 SPA |
-| `docs/` | `aharbii/movie-finder-docs` | MkDocs documentation |
-| `infrastructure/` | `aharbii/movie-finder-infrastructure` | IaC / Azure provisioning |
+| Path                     | GitHub repo                           | Role                           |
+| ------------------------ | ------------------------------------- | ------------------------------ |
+| `.` (root)               | `aharbii/movie-finder`                | Parent — all cross-repo issues |
+| `backend/`               | `aharbii/movie-finder-backend`        | FastAPI + uv workspace root    |
+| `backend/app/`           | (nested in backend)                   | FastAPI application layer      |
+| `backend/chain/`         | `aharbii/movie-finder-chain`          | LangGraph 8-node AI pipeline   |
+| `backend/chain/imdbapi/` | `aharbii/imdbapi-client`              | **← you are here**             |
+| `backend/rag_ingestion/` | `aharbii/movie-finder-rag`            | Offline embedding ingestion    |
+| `frontend/`              | `aharbii/movie-finder-frontend`       | Angular 21 SPA                 |
+| `docs/`                  | `aharbii/movie-finder-docs`           | MkDocs documentation           |
+| `infrastructure/`        | `aharbii/movie-finder-infrastructure` | IaC / Azure provisioning       |
 
 ### Technology stack
 
-| Layer | Stack |
-|---|---|
-| Language | Python 3.13, Docker-only local dev |
-| HTTP | `httpx` (async) |
-| Retry | `tenacity` (exponential back-off) |
-| Validation | Pydantic v2 |
-| Linting | `ruff` (line-length 100) · `mypy --strict` |
-| Tests | `pytest --asyncio-mode=auto` |
-| CI | Jenkins Multibranch |
+| Layer      | Stack                                      |
+| ---------- | ------------------------------------------ |
+| Language   | Python 3.13, Docker-only local dev         |
+| HTTP       | `httpx` (async)                            |
+| Retry      | `tenacity` (exponential back-off)          |
+| Validation | Pydantic v2                                |
+| Linting    | `ruff` (line-length 100) · `mypy --strict` |
+| Tests      | `pytest --asyncio-mode=auto`               |
+| CI         | Jenkins Multibranch                        |
 
 ### Environment variables
 
 `imdbapi.dev` requires no API key. Optional (for examples only):
+
 ```
 OPENAI_API_KEY, ANTHROPIC_API_KEY   # used only in examples/langchain_agent_example.py
 ```
@@ -58,11 +59,11 @@ OPENAI_API_KEY, ANTHROPIC_API_KEY   # used only in examples/langchain_agent_exam
 
 ## Design patterns to follow
 
-| Pattern | Where | Rule |
-|---|---|---|
-| **Adapter** | The entire client | Wraps `imdbapi.dev` REST responses and maps them to internal domain types. Callers (chain nodes) never see raw HTTP responses or camelCase fields. |
-| **Configuration object** | `config.py` / Pydantic `BaseSettings` | Retry settings, timeouts, base URL loaded from config — not hardcoded. |
-| **Resilience decorator** | `tenacity` retry logic | Retry policy is applied at the transport layer, not inside business logic. New endpoints inherit the policy automatically. |
+| Pattern                  | Where                                 | Rule                                                                                                                                               |
+| ------------------------ | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Adapter**              | The entire client                     | Wraps `imdbapi.dev` REST responses and maps them to internal domain types. Callers (chain nodes) never see raw HTTP responses or camelCase fields. |
+| **Configuration object** | `config.py` / Pydantic `BaseSettings` | Retry settings, timeouts, base URL loaded from config — not hardcoded.                                                                             |
+| **Resilience decorator** | `tenacity` retry logic                | Retry policy is applied at the transport layer, not inside business logic. New endpoints inherit the policy automatically.                         |
 
 **Known issue #8:** The 30-second retry base delay blocks the SSE stream. Any retry policy change must be coordinated with the `chain/` team to verify the SSE timeout budget.
 
@@ -83,22 +84,22 @@ OPENAI_API_KEY, ANTHROPIC_API_KEY   # used only in examples/langchain_agent_exam
 
 ## Pre-commit hooks
 
-`backend/imdbapi/.pre-commit-config.yaml` — run through the Docker-backed repo
+`backend/chain/imdbapi/.pre-commit-config.yaml` — run through the Docker-backed repo
 targets from this directory.
 
 ```bash
 make pre-commit
 ```
 
-| Hook | Notes |
-|---|---|
-| `trailing-whitespace`, `end-of-file-fixer`, `check-yaml`, `check-case-conflict`, `check-merge-conflict` | File health |
-| `check-added-large-files`, `check-illegal-windows-names`, `detect-private-key` | Safety |
-| `pretty-format-json` | JSON files auto-formatted |
-| `sort-simple-yaml` | YAML keys sorted |
-| `detect-secrets` | No API keys or tokens |
-| `mypy` (strict, extra dep: `pydantic`) | Type checking |
-| `ruff-check --fix`, `ruff-format` | Linting and formatting |
+| Hook                                                                                                    | Notes                     |
+| ------------------------------------------------------------------------------------------------------- | ------------------------- |
+| `trailing-whitespace`, `end-of-file-fixer`, `check-yaml`, `check-case-conflict`, `check-merge-conflict` | File health               |
+| `check-added-large-files`, `check-illegal-windows-names`, `detect-private-key`                          | Safety                    |
+| `pretty-format-json`                                                                                    | JSON files auto-formatted |
+| `sort-simple-yaml`                                                                                      | YAML keys sorted          |
+| `detect-secrets`                                                                                        | No API keys or tokens     |
+| `mypy` (strict, extra dep: `pydantic`)                                                                  | Type checking             |
+| `ruff-check --fix`, `ruff-format`                                                                       | Linting and formatting    |
 
 **Never `--no-verify`.** False-positive → `# pragma: allowlist secret` + `detect-secrets scan > .secrets.baseline`.
 
@@ -106,7 +107,8 @@ make pre-commit
 
 ## VSCode setup
 
-`backend/imdbapi/.vscode/` is committed with a full workspace configuration:
+`backend/chain/imdbapi/.vscode/` is committed with a full workspace configuration:
+
 - `settings.json` — attached-container interpreter (`/opt/venv/bin/python`), Ruff, mypy strict, pytest discovery
 - `extensions.json` — Python, debugpy, Ruff, mypy, Remote Containers, Coverage Gutters
 - `launch.json` — `main.py` interactive runner + pytest all / current file from the container
@@ -161,32 +163,35 @@ Conventional Commits: `fix(imdbapi): reduce retry base delay to 2s`
 
 Full detail in `ai-context/issue-agent-briefing-template.md`.
 
-| # | Category | Key gate |
-|---|---|---|
-| 1 | **Issues** | Parent `aharbii/movie-finder` + child here only if this repo changes; templates inspected |
-| 2 | **Branch** | `feature/fix/chore/docs` in this repo + pointer-bump `chore/` in `backend/` and root |
-| 3 | **ADR** | Retry strategy change, new external dep, or API contract decision → ADR in `docs/` |
-| 4 | **Implementation** | Adapter pattern — no raw HTTP responses exposed; Pydantic models updated if `imdbapi.dev` schema changed; `ruff`+`mypy --strict` pass; pre-commit pass |
-| 5 | **Tests** | `pytest --asyncio-mode=auto` passes; coverage doesn't regress |
-| 6 | **Env & secrets** | `.env.example` updated if new config; retry/timeout changes flagged to `chain/` (SSE budget) |
-| 7 | **Docker** | `Dockerfile` updated if new deps; `docker-compose.yml` if needed |
-| 8 | **CI** | `Jenkinsfile` / `.github/workflows/` reviewed |
-| 9 | **Diagrams** | `08-seq-chat-sse.puml` or `09-seq-langgraph-execution.puml` if timing/interface changed; `workspace.dsl` if C4 changed; **never `.mdj`** |
-| 9a | **Docs** | `README.md` + `CHANGELOG.md` updated |
+| #   | Category           | Key gate                                                                                                                                               |
+| --- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | **Issues**         | Parent `aharbii/movie-finder` + child here only if this repo changes; templates inspected                                                              |
+| 2   | **Branch**         | `feature/fix/chore/docs` in this repo + pointer-bump `chore/` in `backend/` and root                                                                   |
+| 3   | **ADR**            | Retry strategy change, new external dep, or API contract decision → ADR in `docs/`                                                                     |
+| 4   | **Implementation** | Adapter pattern — no raw HTTP responses exposed; Pydantic models updated if `imdbapi.dev` schema changed; `ruff`+`mypy --strict` pass; pre-commit pass |
+| 5   | **Tests**          | `pytest --asyncio-mode=auto` passes; coverage doesn't regress                                                                                          |
+| 6   | **Env & secrets**  | `.env.example` updated if new config; retry/timeout changes flagged to `chain/` (SSE budget)                                                           |
+| 7   | **Docker**         | `Dockerfile` updated if new deps; `docker-compose.yml` if needed                                                                                       |
+| 8   | **CI**             | `Jenkinsfile` / `.github/workflows/` reviewed                                                                                                          |
+| 9   | **Diagrams**       | `08-seq-chat-sse.puml` or `09-seq-langgraph-execution.puml` if timing/interface changed; `workspace.dsl` if C4 changed; **never `.mdj`**               |
+| 9a  | **Docs**           | `README.md` + `CHANGELOG.md` updated                                                                                                                   |
 
 ### 10. Sibling submodules affected
-| Submodule | Why |
-|---|---|
+
+| Submodule        | Why                                                                           |
+| ---------------- | ----------------------------------------------------------------------------- |
 | `backend/chain/` | `enrich_imdb` node consumes this client — response shape changes are breaking |
-| `docs/` | Integration and sequence docs |
+| `docs/`          | Integration and sequence docs                                                 |
 
 ### 11. Submodule pointer bump
+
 ```bash
 git add imdbapi && git commit -m "chore(imdbapi): bump to latest main"   # in backend/
 git add backend && git commit -m "chore(backend): bump to latest main"   # in root
 ```
 
 ### 12. Pull request
+
 - [ ] PR in `aharbii/imdbapi-client` discloses the AI authoring tool + model
 - [ ] PR in `aharbii/movie-finder-backend` (pointer bump)
 - [ ] PR in `aharbii/movie-finder` (pointer bump)

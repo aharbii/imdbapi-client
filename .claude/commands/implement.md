@@ -42,12 +42,14 @@ git checkout -b [type]/[kebab-case-title]
 ## Step 5 — Implement
 
 IMDb client-specific patterns:
+
 - Adapter pattern — the client wraps the external API and maps to internal domain types; callers never see raw HTTP responses
 - Retry logic — base delay must not exceed what's acceptable for SSE streaming (see issue #8, current issue is 30s base delay)
 - All I/O is async — no sync HTTP calls
 - Configuration via Pydantic BaseSettings — no `os.getenv()` directly in client code
 
 General backend standards:
+
 - Type annotations required, `mypy --strict`
 - Line length ≤ 100 chars
 - No bare `except:`, no `print()`, async all the way

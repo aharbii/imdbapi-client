@@ -20,12 +20,14 @@ gh pr diff $ARGUMENTS --repo aharbii/imdbapi-client
 ## Blocking findings
 
 **IMDb client-specific patterns:**
+
 - Adapter pattern broken (callers receive raw HTTP responses)
 - Sync HTTP calls in async context
 - Retry base delay makes SSE streaming unacceptably slow (current open issue #8 is 30s)
 - `os.getenv()` instead of Pydantic BaseSettings
 
 **Python standards:**
+
 - Missing type annotations, bare `except:`, `print()`, `type: ignore` without comment
 - Line > 100 chars, no tests for new logic
 

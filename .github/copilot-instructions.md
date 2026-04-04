@@ -30,11 +30,11 @@ Parent project: `aharbii/movie-finder` — all issues created there first, then 
 
 ## Design patterns — follow these
 
-| Pattern | Rule |
-|---|---|
-| **Adapter** | Client wraps the external IMDb API and maps to internal domain types. Callers never see raw HTTP. |
+| Pattern                  | Rule                                                                                                             |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| **Adapter**              | Client wraps the external IMDb API and maps to internal domain types. Callers never see raw HTTP.                |
 | **Configuration object** | All env vars (API key, base URL, timeouts, retry config) loaded once in `config.py` via Pydantic `BaseSettings`. |
-| **PEP 695** | Modern type parameter syntax for Python 3.13. |
+| **PEP 695**              | Modern type parameter syntax for Python 3.13.                                                                    |
 
 ---
 
@@ -52,10 +52,10 @@ Hooks: `trailing-whitespace`, `end-of-file-fixer`, `check-yaml`, `check-merge-co
 
 ## Known issues most relevant to this package
 
-| # | Title |
-|---|---|
-| #8 | IMDb retry base delay 30 s — blocks SSE stream |
-| #16 | IMDb stagger delay adds artificial latency |
+| #   | Title                                          |
+| --- | ---------------------------------------------- |
+| #8  | IMDb retry base delay 30 s — blocks SSE stream |
+| #16 | IMDb stagger delay adds artificial latency     |
 
 ---
 

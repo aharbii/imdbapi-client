@@ -119,11 +119,13 @@ async def get_something(self, id: str) -> MyModel:
 `imdbapi.*` namespace to ensure the package remains independently usable.
 
 Correct:
+
 ```python
 from imdbapi.utils.logger import get_logger
 ```
 
 Incorrect:
+
 ```python
 from ..utils.logger import get_logger
 ```
@@ -163,6 +165,7 @@ make test-coverage
 ```
 
 To run a specific test from within the container:
+
 ```bash
 pytest tests/test_titles.py -v -k "test_get"
 ```

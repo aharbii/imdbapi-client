@@ -104,11 +104,6 @@ disable_error_code = ["valid-type"]
 module = "imdbapi.langchain.agent"
 disable_error_code = ["call-arg"]
 
-[[tool.mypy.overrides]]
-# pytest fixtures and marks are not fully typed; relax decorator checks for tests
-module = "tests.*"
-disallow_untyped_decorators = false
-
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]

@@ -61,6 +61,7 @@ pipeline {
                         id: 'coverage',
                         name: 'IMDb Client Coverage',
                         sourceCodeRetention: 'EVERY_BUILD',
+                        sourceDirectories: [[path: 'src']],
                         failOnError: false,
                         qualityGates: [
                             [threshold: 10.0, metric: 'LINE', baseline: 'PROJECT'],

@@ -21,12 +21,21 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Removed stale `uv sync --group agents-anthropic` install hint from the `langchain`
+  import error message in the movie agent factory
 - **Package Restructuring:** Moved `src/utils` to `src/imdbapi/utils` to resolve global namespace pollution
 - **Import Refactoring:** Converted all internal relative imports to absolute `imdbapi.*` paths
 - **Quality Gate Expansion:** `make typecheck` now enforces strict typing across both `src/` and `tests/`
 - **Pre-commit Synchronization:** Reverted to remote mirrors strategy to align with trusted `backend` DNA
 - **Naming Parity:** Renamed `make coverage` to `make test-coverage` for cross-repo consistency
-- **CI Hygiene:** Updated `Jenkinsfile` to use `make ci-down` for full volume and image cleanup
+- **CI Hygiene:** Updated `Jenkinsfile` to use `make ci-down` for full volume and image cleanup;
+  removed Build App Image stage (image builds now orchestrated by the root pipeline)
+- All test outputs (`junit.xml`, `coverage.xml`, `htmlcov/`) now written to a `reports/`
+  subdirectory; `Makefile` paths updated accordingly; `.gitignore` updated to a single
+  `reports/` entry
+- GitHub Actions CI workflow updated: added `EnricoMi/publish-unit-test-result-action@v2`,
+  `irongut/CodeCoverageSummary@v1.3.0`, and `marocchino/sticky-pull-request-comment@v2`
+  reporting plugins mirroring Jenkins plugin behaviour
 
 ### Removed
 

@@ -1,47 +1,30 @@
+"""Logging utilities for the imdbapi package.
+
+Library code never configures the logging system — it only obtains loggers.
+Configuration is the responsibility of the entry point that imports this package.
+
+``get_logger`` is a thin backward-compatible shim with an ignored ``debug``
+parameter.  Log level is controlled by the ``LOG_LEVEL`` environment variable
+set at the entry-point level.
 """
-Centralized logging configuration for the backend application.
-"""
+
+from __future__ import annotations
 
 import logging
-import os
-import sys
-from datetime import datetime
-
-timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-LOGS_DIR = os.path.join(os.getcwd(), "logs", timestamp)
 
 
-def get_logger(name: str, debug: bool = False) -> logging.Logger:
-    """
-    Get a configured logger instance with standard formatting.
+def get_logger(name: str, debug: bool = False) -> logging.Logger:  # noqa: ARG001
+    """Return a stdlib logger for the given name.
+
+    The ``debug`` parameter is accepted for backward compatibility but is
+    ignored — log level is controlled by the entry-point bootstrap via the
+    ``LOG_LEVEL`` environment variable.
 
     Args:
-        name: The name of the logger, typically __name__.
-        debug: Enable debug log or not
+        name: Logger name, typically ``__name__``.
+        debug: Ignored. Kept for backward compatibility.
 
     Returns:
-        logging.Logger: A configured logger instance.
+        A ``logging.Logger`` instance.
     """
-    logger = logging.getLogger(name)
-
-    if not logger.handlers:
-        logger.setLevel(logging.DEBUG if debug else logging.INFO)
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-
-        logfile_name = os.path.join(LOGS_DIR, f"{name.replace('.', os.sep)}.log")
-        if not os.path.exists(os.path.dirname(logfile_name)):
-            os.makedirs(os.path.dirname(logfile_name), exist_ok=True)
-
-        file_handler = logging.FileHandler(logfile_name)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
-        full_file_handler = logging.FileHandler(os.path.join(LOGS_DIR, "full.log"))
-        full_file_handler.setFormatter(formatter)
-        logger.addHandler(full_file_handler)
-
-    return logger
+    return logging.getLogger(name)

@@ -1,4 +1,4 @@
-# imdbapi-client
+# IMDbAPI Client
 
 A production-ready, fully-typed **async** Python client for the free [imdbapi.dev](https://imdbapi.dev) REST API (v2.7.12).
 

@@ -1,0 +1,40 @@
+---
+description: Architect persona for the imdbapi submodule. Activate for retry strategy decisions, API contract design, or domain model changes.
+globs: ["**/*.puml", "**/workspace.dsl", "ai-context/**"]
+alwaysApply: false
+---
+
+# Architect — imdbapi
+
+Architect context scoped to the `imdbapi-client` Adapter submodule.
+
+## Role
+
+This submodule is a pure **Adapter** — it owns the boundary between `imdbapi.dev` (external) and the Movie Finder domain model (internal). Architecture decisions here concern:
+- The domain type mapping from raw API response to internal `Movie` model
+- Retry/resilience strategy (coordinated with `chain/` SSE timeout budget)
+- Client lifecycle (connection pooling, session management)
+
+## Relevant diagrams
+
+| File | Relevance |
+|------|-----------|
+| `docs/architecture/plantuml/09-seq-langgraph-execution.puml` | imdbapi called by `enrich_imdb` node |
+| `docs/architecture/plantuml/08-seq-chat-sse.puml` | IMDb delay contributes to total SSE latency |
+
+## Key contract
+
+The imdbapi client is a path dependency of `chain/`. Any change to:
+- Return type of public methods → breaking change for `enrich_imdb` node
+- Retry base delay → must be validated against SSE stream timeout budget
+- New public methods → must have full type annotations and docstrings
+
+**Issue #8:** The 30s base delay blocks the SSE stream. Any retry strategy ADR must propose a delay ≤ 2s for the first retry.
+
+## OpenAPI
+
+imdbapi.dev docs: `https://imdbapi.dev/docs` — check before changing domain models.
+
+## Anti-Focus
+
+Do not write node code in `chain/`. Do not design the SSE streaming architecture — that belongs to the backend/chain workspace.

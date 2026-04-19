@@ -1,6 +1,9 @@
 # OpenAI Codex CLI — imdbapi submodule
 
-Foundational mandate for `imdbapi-client` (`backend/chain/imdbapi/`).
+This is **`imdbapi-client`** (`backend/chain/imdbapi/`) — part of the Movie Finder project.
+GitHub repo: `aharbii/imdbapi-client` · Parent repo: `aharbii/movie-finder`
+
+> See root AGENTS.md for: full submodule map, GitHub issue/PR hygiene, coding standards, branching strategy, session start protocol.
 
 ---
 
@@ -23,34 +26,14 @@ Async Python client for [imdbapi.dev](https://imdbapi.dev).
 
 ---
 
-## Coding standards
+## Coding standards (imdbapi-specific)
 
-- `mypy --strict` passes.
 - No raw `dict` returned — use Pydantic models.
-- Async all the way.
+- Catch specific exceptions: `httpx.HTTPStatusError`, `httpx.RequestError`, `tenacity.RetryError`.
 
 ---
 
-## Workflow invariants
-
-- This repo is the gitlink path `imdbapi` inside `aharbii/movie-finder-backend`. Parent
-  workflow/path filters must use `imdbapi`, not `imdbapi/**`.
-- Cross-repo tracker issues originate in `aharbii/movie-finder`. Create the linked child issue in
-  this repo only if this repo will actually change.
-- Inspect `.github/ISSUE_TEMPLATE/*.yml`, `.github/PULL_REQUEST_TEMPLATE.md` when present, and a
-  recent example before creating or editing issues/PRs. Do not improvise titles or bodies.
-- For child issues in this repo, use `.github/ISSUE_TEMPLATE/linked_task.yml` and keep the
-  description, file references, and acceptance criteria repo-specific.
-- If CI, required checks, or merge policy changes affect this repo, update contributor-facing docs
-  here and in `aharbii/movie-finder-backend` and/or `aharbii/movie-finder` where relevant.
-- If a new standalone issue appears mid-session, branch from `main` unless stacking is explicitly
-  requested.
-- PR descriptions must disclose the AI authoring tool + model. Any AI-assisted review comment or
-  approval must also disclose the review tool + model.
-
----
-
-## VSCode setup
+## VS Code setup
 
 `backend/chain/imdbapi/.vscode/` — full workspace configuration for imdbapi only.
 
@@ -58,5 +41,17 @@ Async Python client for [imdbapi.dev](https://imdbapi.dev).
 - Start the editor container with `make editor-up`, then attach via VS Code Dev Containers
 - `launch.json`: `main.py` interactive runner + pytest all/current file from the container
 - `tasks.json`: host-side `make ...` wrappers for build, editor attach, lint, test, coverage, and pre-commit
-- Modifying configs: keep parity with `backend/.vscode/` aggregate tasks. Update `CLAUDE.md`,
-  `GEMINI.md`, `AGENTS.md`, and the repo's `.github/copilot-instructions.md` after.
+
+---
+
+## Workflow invariants (imdbapi-specific)
+
+- Gitlink path is `imdbapi` inside `aharbii/movie-finder-backend`. Parent path filters must use `imdbapi`, not `imdbapi/**`.
+- Retry or timeout changes must be flagged to `chain/` — they affect the SSE stream budget.
+
+### Submodule pointer bump
+
+```bash
+git add imdbapi && git commit -m "chore(imdbapi): bump to latest main"   # in backend/
+git add backend && git commit -m "chore(backend): bump to latest main"   # in root
+```

@@ -1,0 +1,25 @@
+# Movie Finder — imdbapi-client Cursor Rules
+
+This file is a legacy fallback. Cursor loads the richer MDC rules from `.cursor/rules/` automatically.
+
+If your IDE supports MDC rules, the following files apply:
+- `.cursor/rules/project.mdc` — always active (IMDb client context, adapter pattern)
+- `.cursor/rules/python.mdc` — activates on `**/*.py`
+- `.cursor/rules/architect.mdc` — activates when designing API contract changes
+- `.cursor/rules/developer.mdc` — activates when implementing issues
+
+---
+
+## Quick reference
+
+**Repo:** `aharbii/imdbapi-client` · Primary context: `CLAUDE.md`
+
+**Non-negotiables:**
+- Adapter pattern — client wraps imdbapi.dev and maps to internal domain types; callers never see raw HTTP
+- `mypy --strict` must pass — no `type: ignore` without explanatory comment
+- No bare `except:` — always catch specific types (httpx exceptions, pydantic ValidationError)
+- Async all the way — all I/O uses `httpx.AsyncClient`
+- Known issue #8: retry base delay 30s blocks SSE — do not increase it further
+- `make check` (ruff + mypy + pytest) must pass before any PR
+- Conventional Commits: `fix(imdbapi): summary`
+- Disclose AI tool + model in every PR

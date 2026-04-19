@@ -1,0 +1,51 @@
+---
+description: Movie Finder — imdbapi submodule context. Always active.
+alwaysApply: true
+---
+
+# imdbapi — Async IMDb REST Client
+
+This is `imdbapi-client` (`backend/chain/imdbapi/`) — production-ready async Python client for imdbapi.dev.
+GitHub repo: `aharbii/imdbapi-client` · Parent: `aharbii/movie-finder-chain` · Tracker: `aharbii/movie-finder`
+
+## What this submodule does
+
+Adapter that wraps the imdbapi.dev REST API and maps responses to internal domain types. Used by `chain/` as a path dependency during movie enrichment.
+
+- **Pattern:** Adapter — callers never see raw HTTP responses
+- **Transport:** `httpx` async client
+- **Retry:** Exponential backoff on rate limits (see issue #8 — current delay 30s blocks SSE)
+- **Domain types:** Internal `Movie` model — maps from raw API payload
+
+## Key source layout
+
+```
+src/imdbapi/
+├── client.py      # Main async client — search, details
+├── models.py      # Internal domain types (Adapter output)
+├── retry.py       # Retry logic with backoff
+└── config.py      # Pydantic BaseSettings
+examples/          # Usage examples
+```
+
+## Critical open issues in this repo
+
+- **Issue #8 (High):** IMDb retry base delay 30s — blocks SSE stream. Fix: reduce or make configurable.
+
+## Quality checks
+
+```bash
+uv run pytest
+uv run pre-commit run --all-files
+```
+
+## Non-negotiables
+
+- Adapter pattern strictly — no raw `httpx` responses escape the client boundary
+- All public functions typed — `mypy --strict` must pass
+- Async all the way — no `requests` or blocking calls
+- Never `git add -A`, never `--no-verify`, Conventional Commits
+
+## Personas available
+
+`/developer` (client changes, retry logic), `/sdet` (mock HTTP, rate limit edge cases), `/architect` (API contract decisions).

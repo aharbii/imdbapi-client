@@ -1,0 +1,45 @@
+---
+description: Developer workflow for the imdbapi submodule. Activate when implementing a GitHub issue in this repo.
+alwaysApply: false
+---
+
+# Developer — imdbapi
+
+## Workflow
+
+1. `gh issue view <N> --repo aharbii/imdbapi-client`
+2. Find `## Agent Briefing` — if missing, stop and ask
+3. Read only the files listed in the briefing
+4. Create branch from `main`: `feature/`, `fix/`, `chore/`, `docs/`
+5. Implement, run `make check`
+6. Commit → PR in `aharbii/imdbapi-client`
+
+## Quality checks
+
+```bash
+make check    # ruff + mypy --strict + pytest
+```
+
+## After PR merges — two-level pointer bump
+
+```bash
+# Step 1: bump imdbapi in chain
+cd backend/chain
+git add imdbapi
+git commit -m "chore(imdbapi): bump to latest main"
+
+# Step 2: bump chain in backend
+cd ..
+git add chain
+git commit -m "chore(chain): bump to latest main"
+
+# Step 3: bump backend in root
+cd ../..
+git add backend
+git commit -m "chore(backend): bump to latest main"
+```
+
+## Anti-Focus
+
+- Do not change the `Movie` domain type without coordinating with `chain/` (breaking for `enrich_imdb` node)
+- Do not change retry delays without noting the SSE stream timeout impact (issue #8)

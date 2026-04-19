@@ -1,0 +1,37 @@
+---
+description: Python standards for the imdbapi submodule.
+globs: ["**/*.py"]
+alwaysApply: false
+---
+
+# Python Standards — imdbapi
+
+All root Python standards apply. imdbapi-specific additions:
+
+## Adapter pattern enforcement
+
+- **Never return raw `httpx.Response` objects** to callers — always map to internal domain types
+- **Pydantic v2 models** for every API response — no raw `dict` crossing the module boundary
+- **camelCase → snake_case** mapping must happen inside the client, not in callers
+
+## Resilience
+
+- All retry logic uses `tenacity` — not manual `try/except` loops
+- Retry policy is applied at transport layer via decorator — not inside business methods
+- Any retry config change must note the SSE stream timeout budget impact (issue #8)
+
+## HTTP
+
+- All HTTP calls use `httpx.AsyncClient` — never sync `httpx.get()`
+- Connection pool is created once and reused — never per-call
+- Timeout is configured in the client constructor, not per-call
+
+## Testing
+
+```bash
+make test     # pytest --asyncio-mode=auto
+make check    # lint + typecheck + test
+```
+
+Use `respx` to mock `httpx` — never mock at the `imdbapi` module level.
+Test retry behavior by mocking 429 responses via `respx`.

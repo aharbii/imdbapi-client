@@ -98,7 +98,7 @@ class IMDBAPIClient:
     ) -> None:
         self.debug = debug
         self._max_retries = max_retries
-        self._logger = get_logger(__name__, debug=debug)
+        self._logger = get_logger(__name__)
 
         headers: dict[str, str] = {"Accept": "application/json"}
         if api_key:

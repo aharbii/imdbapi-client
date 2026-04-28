@@ -21,7 +21,7 @@ class BaseEndpoint:
 
     def __init__(self, client: IMDBAPIClient) -> None:
         self._client = client
-        self._logger = get_logger(__name__, debug=client.debug)
+        self._logger = get_logger(__name__)
 
     async def _get(self, path: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
         """Perform a GET request via the parent client.

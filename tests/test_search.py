@@ -9,6 +9,7 @@ import pytest
 import respx
 
 from imdbapi.client import IMDBAPIClient
+from imdbapi.exceptions import IMDBAPIValidationError
 from imdbapi.models import ListStarMetersResponse, SearchTitlesResponse
 
 BASE_URL = "https://api.imdbapi.dev"
@@ -113,3 +114,13 @@ async def test_starmeter_with_page_token(client: IMDBAPIClient) -> None:
         result = await client.charts.starmeter(page_token="cursor_xyz")
     assert isinstance(result, ListStarMetersResponse)
     assert route.called
+
+
+@pytest.mark.asyncio
+async def test_search_titles_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/search/titles?query=test").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.search.titles("test")

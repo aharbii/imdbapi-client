@@ -9,7 +9,7 @@ import pytest
 import respx
 
 from imdbapi.client import IMDBAPIClient
-from imdbapi.exceptions import IMDBAPINotFoundError
+from imdbapi.exceptions import IMDBAPINotFoundError, IMDBAPIValidationError
 from imdbapi.models import Interest, ListInterestCategoriesResponse
 
 BASE_URL = "https://api.imdbapi.dev"
@@ -88,3 +88,21 @@ async def test_get_interest_not_found(client: IMDBAPIClient) -> None:
         )
         with pytest.raises(IMDBAPINotFoundError):
             await client.interests.get("invalid")
+
+
+@pytest.mark.asyncio
+async def test_list_interest_categories_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/interests").mock(return_value=httpx.Response(200, json=["invalid", "data"]))
+        with pytest.raises(IMDBAPIValidationError):
+            await client.interests.list_categories()
+
+
+@pytest.mark.asyncio
+async def test_get_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/interests/in123").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.interests.get("in123")

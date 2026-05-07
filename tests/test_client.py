@@ -10,6 +10,7 @@ from imdbapi.client import IMDBAPIClient
 from imdbapi.exceptions import (
     IMDBAPIBadRequestError,
     IMDBAPIConnectionError,
+    IMDBAPIHTTPError,
     IMDBAPINotFoundError,
     IMDBAPIRateLimitError,
     IMDBAPIServerError,
@@ -127,3 +128,33 @@ async def test_successful_response_returns_dict(client: IMDBAPIClient) -> None:
         mock.get("/titles/tt0111161").mock(return_value=httpx.Response(200, json=payload))
         result = await client._request("GET", "/titles/tt0111161")
     assert result["id"] == "tt0111161"
+
+
+@pytest.mark.asyncio
+async def test_client_api_key() -> None:
+    client = IMDBAPIClient(api_key="test-key")
+    assert client._http.headers["X-API-Key"] == "test-key"
+
+
+@pytest.mark.asyncio
+async def test_http_error_raises_connection_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/search/titles").mock(side_effect=httpx.HTTPError("Some HTTP Error"))
+        with pytest.raises(IMDBAPIConnectionError):
+            await client._request("GET", "/search/titles")
+
+
+@pytest.mark.asyncio
+async def test_403_raises_http_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/search/titles").mock(
+            return_value=httpx.Response(403, json={"message": "Forbidden"})
+        )
+        with pytest.raises(IMDBAPIHTTPError):
+            await client._request("GET", "/search/titles")
+
+
+def test_log_level_debug() -> None:
+    from imdbapi.endpoints.base import BaseEndpoint
+
+    assert BaseEndpoint._log_level(True) == 10  # logging.DEBUG is 10

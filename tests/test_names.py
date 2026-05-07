@@ -9,7 +9,7 @@ import pytest
 import respx
 
 from imdbapi.client import IMDBAPIClient
-from imdbapi.exceptions import IMDBAPINotFoundError
+from imdbapi.exceptions import IMDBAPINotFoundError, IMDBAPIValidationError
 from imdbapi.models import (
     BatchGetNamesResponse,
     ListNameFilmographyResponse,
@@ -142,6 +142,31 @@ async def test_get_filmography(client: IMDBAPIClient) -> None:
     assert result.credits[0].title.id == "tt0111161"
 
 
+@pytest.mark.asyncio
+async def test_iter_filmography(client: IMDBAPIClient) -> None:
+    payload: dict[str, Any] = {
+        "credits": [
+            {
+                "title": {"id": "tt0111161", "primaryTitle": "The Shawshank Redemption"},
+                "category": "director",
+                "characters": [],
+            }
+        ],
+        "totalCount": 1,
+        "nextPageToken": None,
+    }
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get(f"/names/{NAME_ID}/filmography").mock(
+            return_value=httpx.Response(200, json=payload)
+        )
+        items = []
+        async for page in client.names.get_filmography_pages(NAME_ID):
+            items.extend(page.credits)
+    assert len(items) == 1
+    assert items[0].title is not None
+    assert items[0].title.id == "tt0111161"
+
+
 # ---------------------------------------------------------------------------
 # get_relationships()
 # ---------------------------------------------------------------------------
@@ -193,3 +218,61 @@ async def test_get_trivia(client: IMDBAPIClient) -> None:
         result = await client.names.get_trivia(NAME_ID)
     assert isinstance(result, ListNameTriviaResponse)
     assert result.trivia_entries[0].interest_count == 42
+
+
+@pytest.mark.asyncio
+async def test_get_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/names/nm123").mock(return_value=httpx.Response(200, json=["invalid", "data"]))
+        with pytest.raises(IMDBAPIValidationError):
+            await client.names.get("nm123")
+
+
+@pytest.mark.asyncio
+async def test_batch_get_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/names:batchGet?nameIds=nm123").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.names.batch_get(["nm123"])
+
+
+@pytest.mark.asyncio
+async def test_get_images_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/names/nm123/images").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.names.get_images("nm123")
+
+
+@pytest.mark.asyncio
+async def test_get_filmography_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/names/nm123/filmography").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.names.get_filmography("nm123")
+
+
+@pytest.mark.asyncio
+async def test_get_relationships_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/names/nm123/relationships").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.names.get_relationships("nm123")
+
+
+@pytest.mark.asyncio
+async def test_get_trivia_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/names/nm123/trivia").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.names.get_trivia("nm123")

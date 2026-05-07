@@ -175,6 +175,29 @@ async def test_get_credits(client: IMDBAPIClient) -> None:
     assert result.credits[0].characters == ["Andy Dufresne"]
 
 
+@pytest.mark.asyncio
+async def test_iter_credits(client: IMDBAPIClient) -> None:
+    payload = {
+        "credits": [
+            {
+                "name": {"id": "nm0000209", "displayName": "Tim Robbins"},
+                "category": "actor",
+                "characters": ["Andy Dufresne"],
+            }
+        ],
+        "totalCount": 1,
+        "nextPageToken": None,
+    }
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get(f"/titles/{TITLE_ID}/credits").mock(return_value=httpx.Response(200, json=payload))
+        items = []
+        async for page in client.titles.get_credits_pages(TITLE_ID):
+            items.extend(page.credits)
+    assert len(items) == 1
+    assert items[0].name is not None
+    assert items[0].name.id == "nm0000209"
+
+
 # ---------------------------------------------------------------------------
 # get_release_dates()
 # ---------------------------------------------------------------------------
@@ -443,3 +466,159 @@ async def test_get_box_office(client: IMDBAPIClient) -> None:
     assert result.opening_weekend_gross is not None
     assert result.opening_weekend_gross.gross is not None
     assert result.opening_weekend_gross.gross.amount == 727_327
+
+
+@pytest.mark.asyncio
+async def test_list_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/titles").mock(return_value=httpx.Response(200, json=["invalid", "data"]))
+        with pytest.raises(IMDBAPIValidationError):
+            await client.titles.list()
+
+
+@pytest.mark.asyncio
+async def test_batch_get_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/titles:batchGet?titleIds=tt123").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.titles.batch_get(["tt123"])
+
+
+@pytest.mark.asyncio
+async def test_get_credits_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/titles/tt123/credits").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.titles.get_credits("tt123")
+
+
+@pytest.mark.asyncio
+async def test_get_release_dates_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/titles/tt123/releaseDates").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.titles.get_release_dates("tt123")
+
+
+@pytest.mark.asyncio
+async def test_get_akas_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/titles/tt123/akas").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.titles.get_akas("tt123")
+
+
+@pytest.mark.asyncio
+async def test_get_seasons_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/titles/tt123/seasons").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.titles.get_seasons("tt123")
+
+
+@pytest.mark.asyncio
+async def test_get_episodes_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/titles/tt123/episodes?season=1").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.titles.get_episodes("tt123", season="1")
+
+
+@pytest.mark.asyncio
+async def test_get_images_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/titles/tt123/images").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.titles.get_images("tt123")
+
+
+@pytest.mark.asyncio
+async def test_get_videos_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/titles/tt123/videos").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.titles.get_videos("tt123")
+
+
+@pytest.mark.asyncio
+async def test_get_award_nominations_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/titles/tt123/awardNominations").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.titles.get_award_nominations("tt123")
+
+
+@pytest.mark.asyncio
+async def test_get_parents_guide_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/titles/tt123/parentsGuide").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.titles.get_parents_guide("tt123")
+
+
+@pytest.mark.asyncio
+async def test_get_certificates_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/titles/tt123/certificates").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.titles.get_certificates("tt123")
+
+
+@pytest.mark.asyncio
+async def test_get_company_credits_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/titles/tt123/companyCredits").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.titles.get_company_credits("tt123")
+
+
+@pytest.mark.asyncio
+async def test_get_box_office_validation_error(client: IMDBAPIClient) -> None:
+    with respx.mock(base_url=BASE_URL) as mock:
+        mock.get("/titles/tt123/boxOffice").mock(
+            return_value=httpx.Response(200, json=["invalid", "data"])
+        )
+        with pytest.raises(IMDBAPIValidationError):
+            await client.titles.get_box_office("tt123")
+
+
+def test_title_type_missing() -> None:
+    from imdbapi.models.title import TitleType
+
+    assert TitleType("movie") == TitleType.MOVIE
+    assert TitleType("tvSeries") == TitleType.TV_SERIES
+    assert TitleType("tvMiniSeries") == TitleType.TV_MINI_SERIES
+    assert TitleType("tvSpecial") == TitleType.TV_SPECIAL
+    assert TitleType("tvMovie") == TitleType.TV_MOVIE
+    assert TitleType("short") == TitleType.SHORT
+    assert TitleType("tvShort") == TitleType.SHORT
+    assert TitleType("video") == TitleType.VIDEO
+    assert TitleType("videoGame") == TitleType.VIDEO_GAME
+    with pytest.raises(ValueError):
+        TitleType("unknown")
+    assert TitleType._missing_("unknown") is None
+    assert TitleType._missing_(123) is None
